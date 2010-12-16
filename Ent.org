@@ -20,7 +20,11 @@ instead of XML.
    :Effort:   1:00
                                                                            :END:
    [2010-10-28 Thu]
-** TODO convert ebld code to ent code
+** TODO [#B] convert ebld code to ent code                         :computer:
+   SCHEDULED: <2010-12-16 Thu>
+   :PROPERTIES:
+   :Effort:   1:00
+   :END:
 ** TODO [#B] add in ebuild useful features from mk
    
 
