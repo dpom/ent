@@ -20,10 +20,11 @@ instead of XML.
    :Effort:   1:00
                                                                            :END:
    [2010-10-28 Thu]
-** TODO [#A] convert ebld code to ent code                         :computer:
-   SCHEDULED: <2010-12-16 Thu>
+** DONE [#A] convert ebld code to ent code                         :computer:
+   SCHEDULED: <2010-12-16 Thu> CLOSED: [2010-12-19 Sun 20:01]
    :LOGBOOK:
-   CLOCK: [2010-12-19 Sun 19:25]
+   CLOCK: [2010-12-19 Sun 19:46]--[2010-12-19 Sun 20:01] =>  0:15
+   CLOCK: [2010-12-19 Sun 19:25]--[2010-12-19 Sun 19:35] =>  0:10
    CLOCK: [2010-12-19 Sun 18:38]--[2010-12-19 Sun 19:25] =>  0:47
    CLOCK: [2010-12-19 Sun 18:31]--[2010-12-19 Sun 18:38] =>  0:07
    CLOCK: [2010-12-19 Sun 13:46]--[2010-12-19 Sun 14:54] =>  1:08
@@ -34,7 +35,11 @@ instead of XML.
    :PROPERTIES:
    :Effort:   1:00
    :END:
-** TODO [#B] add in ebuild useful features from mk
+** TODO add genautoload task                                       :computer:
+   SCHEDULED: <2010-12-20 Mon>
+** TODO set build file to auto deploy ent package                  :computer:
+** TODO create command for finding file in project http://www.emacswiki.org/emacs/InteractivelyDoThings#toc12 :net:
+** TODO create command to open specific project config file        :computer:
    
 
 

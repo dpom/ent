@@ -13,9 +13,6 @@
 
 ;;; Code:
 
-(provide 'ent)
-
-
 (require 'bytecomp)
 (require 'dired)
 
@@ -30,11 +27,6 @@
   :group 'processes)
 
 
-(defcustom ent-default-task 'clean
-  "Default task"
-  :type '(symbol)
-  :group 'ent)
-
 (defcustom ent-file-name ".build.el"
   "Local ent file name"
   :type '(string)
@@ -44,6 +36,17 @@
 (defcustom ent-init-file "~/.emacs.d/init-ent.el"
   "Global ent init file name"
   :type '(string)
+  :group 'ent)
+
+(defcustom ent-default-task-number 20
+  "Default task number"
+  :type '(integer)
+  :group 'ent)
+
+
+(defcustom ent-default-task 'clean
+  "Default task"
+  :type '(symbol)
   :group 'ent)
 
 
@@ -59,41 +62,31 @@
   :group 'ent)
 
 
-(defcustom ent-elisp-deploy-root "/local/share/emacs/site-lisp/"
-  "Elisp deploy root directory"
-  :type '(string)
-  :group 'ent)
-
 (defcustom ent-elisp-default-src-dir "src/main/lisp/"
   "Default lisp source directory"
   :type '(string)
   :group 'ent)
 
-(defcustom ent-default-task-number 20
-  "Default task number"
-  :type '(integer)
-  :group 'ent)
-
 
 ;;;; Global variables
 
-(defvar ent-project-home "" "Project home directory")
+(defvar ent-project-name "" "Project name, must be set in the project init file.")
 
-(defvar ent-mcopy-list () "Multiple copy list each element is \(SRC DEST PATTERN\).The SRC and DEST must be absolute path.")
+(defvar ent-project-home "" "Project home directory")
 
 (defvar ent-tasks () "Local tasks list")
 
-(defvar ent-project-name "" "Project name, must be seted in init file")
+
 
 (defvar ent-clean-regexp "" "Regular expression to match garbage files")
 
 (defvar ent-dirclean-regexp "" "Regular expression to match garbage directories")
 
 (defvar ent-elisp-src-dir "" "Lisp source directory")
-  
-(defvar ent-elisp-deploy-dir "" "Project deploy directory")
 
-(defvar ent-elisp-regexp "\.elc?$" "Source and compile files regexp")
+(defvar ent-mcopy-list () "Multiple copy list each element is \(SRC DEST PATTERN\).The SRC and DEST must be absolute path.")
+
+(defvar ent-generated-autoload-file "")
 
 ;;;; Utility functions
 (defun ent-search-up-file (name dir)
