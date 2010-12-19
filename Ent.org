@@ -20,8 +20,17 @@ instead of XML.
    :Effort:   1:00
                                                                            :END:
    [2010-10-28 Thu]
-** TODO [#B] convert ebld code to ent code                         :computer:
+** TODO [#A] convert ebld code to ent code                         :computer:
    SCHEDULED: <2010-12-16 Thu>
+   :LOGBOOK:
+   CLOCK: [2010-12-19 Sun 19:25]
+   CLOCK: [2010-12-19 Sun 18:38]--[2010-12-19 Sun 19:25] =>  0:47
+   CLOCK: [2010-12-19 Sun 18:31]--[2010-12-19 Sun 18:38] =>  0:07
+   CLOCK: [2010-12-19 Sun 13:46]--[2010-12-19 Sun 14:54] =>  1:08
+   CLOCK: [2010-12-19 Sun 11:08]--[2010-12-19 Sun 11:13] =>  0:05
+   CLOCK: [2010-12-19 Sun 05:18]--[2010-12-19 Sun 06:09] =>  0:51
+   CLOCK: [2010-12-18 Sat 22:08]--[2010-12-18 Sat 23:04] =>  0:56
+   :END:
    :PROPERTIES:
    :Effort:   1:00
    :END:

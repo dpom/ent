@@ -1,0 +1,6 @@
+(setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
+(add-to-list 'load-path (concat ent-project-home "src/main/lisp/"))
+(require 'ent)
+(setq ent-project-name "ent")
+(ent-init)
+(setq debug-on-error t)
