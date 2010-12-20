@@ -35,8 +35,16 @@ instead of XML.
    :PROPERTIES:
    :Effort:   1:00
    :END:
-** TODO add genautoload task                                       :computer:
+** TODO [#A] add genautoload task                                  :computer:
    SCHEDULED: <2010-12-20 Mon>
+   :LOGBOOK:
+   CLOCK: [2010-12-20 Mon 12:00]
+   CLOCK: [2010-12-20 Mon 11:35]--[2010-12-20 Mon 11:52] =>  0:17
+   CLOCK: [2010-12-20 Mon 10:57]--[2010-12-20 Mon 11:12] =>  0:15
+   :END:
+   :PROPERTIES:
+   :Effort:   0:30
+   :END:
 ** TODO set build file to auto deploy ent package                  :computer:
 ** TODO create command for finding file in project http://www.emacswiki.org/emacs/InteractivelyDoThings#toc12 :net:
 ** TODO create command to open specific project config file        :computer:
