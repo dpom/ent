@@ -1,13 +1,25 @@
 (setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
 (add-to-list 'load-path (concat ent-project-home "src/main/lisp/"))
 (require 'ent)
-(setq ent-project-name "ent")
-(ent-init)
 (setq debug-on-error t)
 
-;;; define local variables
 
+;; project settings
 (defvar generated-autoload-file)
+(defvar deploy-dir)
+
+(setq ent-project-name "ent")
+
+(setq deploy-dir (expand-dir-name ent-project-name "~/.emacs.d/contrib/"))
+
+(setq ent-mcopy-list (list
+                      (list (expand-dir-name ent-elisp-default-src-dir ent-project-home)
+                            deploy-dir
+                            "\.elc?$")))
+
+(ent-init)
+
+;; local functions
 
 (defun generate-autoload ()
   (require 'autoload)
@@ -34,6 +46,10 @@
   (save-buffer 0)
   (kill-buffer (current-buffer)))
 
+;; local tasks
+
+
 (task 'genautoload () "generate project autoloads file" '(lambda (&optional x)
                                                            (ent-emacs "generate-autoload" x)))
 
+(task 'install '(clean genautoload elispbuild mcopy) "install the package")
