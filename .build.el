@@ -17,6 +17,10 @@
                             deploy-dir
                             "\.elc?$")))
 
+;in this project the specific config file is the build file
+(setq ent-project-config-filename ".build.el") 
+                    
+
 (ent-init)
 
 ;; local functions

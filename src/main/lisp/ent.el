@@ -68,6 +68,11 @@
   :type '(string)
   :group 'ent)
 
+(defcustom ent-project-config-filename "pom.xml"
+  "Project specific config file name"
+  :type '(string)
+  :group 'ent)
+
 
 ;;;; Global variables
 
@@ -120,9 +125,9 @@
 (defun ent-rcopy (src dest regexp)
   "Recursive copy REGEXP files from SRC to DEST"
   (ent-walk src regexp '(lambda (x)
-                           (message "copy %s to %s" x dest)
-                           (make-directory dest t)
-                           (copy-file x dest t))))
+                          (message "copy %s to %s" x dest)
+                          (make-directory dest t)
+                          (copy-file x dest t))))
 
 (defun ent-mcopy ()
   "Multiple recursive copy using ent-mcopy-list."
@@ -144,10 +149,10 @@
 
 (defun flatten (x)
   (labels ((rec (x acc)
-	      (cond ((null x) acc)
-		    ((atom x) (cons x acc))
-		    (t (rec (car x) (rec (cdr x) acc))))))
-  (rec x nil)))
+                (cond ((null x) acc)
+                      ((atom x) (cons x acc))
+                      (t (rec (car x) (rec (cdr x) acc))))))
+    (rec x nil)))
 
 (defun ent-parse-dep (dep subprojects dir)
   "Parse DEP and return a dependency item \(TASK PROJECT-DIR\)"
@@ -169,7 +174,7 @@
                                        (funcall tsk file))))
                               (ent-get-dep-list name)
                               ";"))))
-                   
+
 
 (defun ent-emacs (tsk file)
   "Run a batch emacs loading FILE and evaluating TSK function"
@@ -199,16 +204,16 @@
     (displaying-byte-compile-warnings
      (message "\nClean: %s from %s" regexp dir)
      (ent-walk dir regexp #'(lambda (x)
-                                 (delete-file (expand-file-name x))
-                                 (setq acc (+ acc 1))
-                                 (message "%s deleted" (expand-file-name x))))
+                              (delete-file (expand-file-name x))
+                              (setq acc (+ acc 1))
+                              (message "%s deleted" (expand-file-name x))))
      (message "Clean: command terminated %d files removed" acc)
      acc)))
 
 (defun ent-clean-init ()
   (setq ent-clean-regexp ent-clean-default-regexp)
   (task 'clean ()  (documentation 'ent-clean-task) '(lambda (&optional file)
-                                                       (ent-emacs "ent-clean-task" file))))
+                                                      (ent-emacs "ent-clean-task" file))))
 
 ;; dirclean
 (defun ent-dirclean-task  (&optional regexp)
@@ -219,16 +224,16 @@
     (displaying-byte-compile-warnings
      (message "\nDirClean: %s from %s" regexp dir)
      (ent-dir-walk dir regexp #'(lambda (x)
-                                 (dired-delete-file (expand-file-name x) 'always)
-                                 (setq acc (+ acc 1))
-                                 (message "%s deleted" (expand-file-name x))))
+                                  (dired-delete-file (expand-file-name x) 'always)
+                                  (setq acc (+ acc 1))
+                                  (message "%s deleted" (expand-file-name x))))
      (message "DirClean: command terminated %d directories removed" acc)
      acc)))
 
 (defun ent-dirclean-init ()
   (setq ent-dirclean-regexp ent-dirclean-default-regexp)
   (task 'dirclean ()  (documentation 'ent-dirclean-task) '(lambda (&optional file)
-                                                       (ent-emacs "ent-dirclean-task" file))))
+                                                            (ent-emacs "ent-dirclean-task" file))))
 
 
 ;; help
@@ -237,11 +242,11 @@
   (displaying-byte-compile-warnings
    (message "\nHelp:")
    (mapatoms #'(lambda (x) (message "%s\t- %s" (ent-get-name x) (ent-get-description x)))
-        ent-tasks)))
+             ent-tasks)))
 
 (defun ent-help-init ()
-    (task 'help ()  (documentation 'ent-help-task) '(lambda (&optional file)
-                                                       (ent-emacs "ent-help-task" file))))
+  (task 'help ()  (documentation 'ent-help-task) '(lambda (&optional file)
+                                                    (ent-emacs "ent-help-task" file))))
 
 ;; elispbuild
 (defun ent-elispbuild-task (&optional arg)
@@ -256,7 +261,7 @@
 (defun ent-elispbuild-init ()
   (setq ent-elisp-src-dir ent-elisp-default-src-dir)
   (task 'elispbuild () (documentation 'ent-elispbuild-task) '(lambda (&optional file)
-                                                                (ent-emacs "ent-elispbuild-task" file))))
+                                                               (ent-emacs "ent-elispbuild-task" file))))
 
 ;; mcopy
 (defun ent-mcopy-task  (&optional regexp)
@@ -269,7 +274,7 @@
 
 (defun ent-mcopy-init ()
   (task 'mcopy ()  (documentation 'ent-mcopy-task) '(lambda (&optional file)
-                                                       (ent-emacs "ent-mcopy-task" file))))
+                                                      (ent-emacs "ent-mcopy-task" file))))
 
 
 
@@ -288,22 +293,6 @@
 ;;;; Commands
 
 ;;;###autoload
-;; (defun ent (&optional taskname)
-;;   "Main entry point for ent"
-;;   (interactive)
-;;   (let ((initfile)
-;;         (dir (ent-search-up-file ent-file-name
-;;                                   (expand-file-name
-;;                                    (file-name-directory (or buffer-file-name list-buffers-directory default-directory))))))
-;;     (if dir
-;;         (load (setq initfile (concat dir ent-file-name)))
-;;       (progn
-;;         (load (setq initfile ent-init-file))
-;;         (setq dir default-directory)))
-;;     (if (not taskname) (setq taskname (completing-read  "Command: " ent-tasks nil t nil nil
-;;                                           (ent-get-name ent-default-task))))
-;;     (ent-batch dir (ent-get-task taskname) ent-tasks initfile)))
-
 (defun ent (&optional taskname)
   "Main entry point for ent"
   (interactive)
@@ -320,17 +309,48 @@
                                              nil t)))
     (ent-batch dir (ent-get-task taskname) ent-tasks initfile)))
 
-
-
-
-
-
 ;;;###autoload
-(defun ent-visit-ent-file ()
-  "Visits the ent project file."
+(defun ent-visit-build-file ()
+  "Visit the ent project file."
   (interactive)
   (find-file-other-window (ent-find-project-file)))
 
+
+(defmacro ent-in-project (&rest body)
+  "Execute body for the curent project."
+  `(if (file-exists-p (ent-find-project-file))
+      (progn
+        (load (ent-find-project-file))
+        ,@body)
+     (message "Not in a project!")))
+  
+;; (defun ent-visit-config-file ()
+;;   "Visit the project specific config file."
+;;   (interactive)
+;;   (if (file-exists-p (ent-find-project-file))
+;;       (progn
+;;         (load (ent-find-project-file))
+;;         (find-file-other-window (expand-file-name ent-project-config-filename ent-project-home)))
+;;     (message "Not in a project!")))
+     
+;;;###autoload
+(defun ent-visit-config-file ()
+  (interactive)
+  (ent-in-project
+   (find-file-other-window (expand-file-name ent-project-config-filename ent-project-home))))
+
+;; Key map
+
+;;;###autoload
+(defvar ent-prefix-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "x" 'ent)
+    (define-key map "c" 'ent-visit-config-file)
+    (define-key map "b" 'ent-visit-build-file)
+    map))
+
+;;;###autoload
+(fset 'ent-prefix-map ent-prefix-map)
 
 
 

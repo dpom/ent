@@ -8,6 +8,20 @@ instead of XML.
 *** [2010-12-12 Sun] in ENT define a ent-config-file variable and a command ent-goto-config-file
 
 * Tasks
+#+BEGIN: clocktable :maxlevel 2 :scope file
+Clock summary at [2010-12-20 Mon 16:57]
+
+| Headline                                    | Time   |      |
+|---------------------------------------------+--------+------|
+| *Total time*                                | *6:13* |      |
+|---------------------------------------------+--------+------|
+| Tasks                                       | 6:13   |      |
+| \__ DONE [#B] create ent project            |        | 0:45 |
+| \__ DONE [#A] convert ebld code to ent code |        | 4:19 |
+| \__ DONE [#A] add genautoload task          |        | 0:35 |
+| \__ DONE [#A] set build file to auto...     |        | 0:34 |
+#+END:
+
 ** DONE [#B] create ent project
    SCHEDULED: <2010-12-13 Mon> CLOSED: [2010-12-13 Mon 18:25]
                                                                        :LOGBOOK:
@@ -20,9 +34,9 @@ instead of XML.
    :Effort:   1:00
                                                                            :END:
    [2010-10-28 Thu]
-** DONE [#A] convert ebld code to ent code                         :computer:
+** DONE [#A] convert ebld code to ent code                            :computer:
    SCHEDULED: <2010-12-16 Thu> CLOSED: [2010-12-19 Sun 20:01]
-   :LOGBOOK:
+                                                                       :LOGBOOK:
    CLOCK: [2010-12-19 Sun 19:46]--[2010-12-19 Sun 20:01] =>  0:15
    CLOCK: [2010-12-19 Sun 19:25]--[2010-12-19 Sun 19:35] =>  0:10
    CLOCK: [2010-12-19 Sun 18:38]--[2010-12-19 Sun 19:25] =>  0:47
@@ -31,24 +45,31 @@ instead of XML.
    CLOCK: [2010-12-19 Sun 11:08]--[2010-12-19 Sun 11:13] =>  0:05
    CLOCK: [2010-12-19 Sun 05:18]--[2010-12-19 Sun 06:09] =>  0:51
    CLOCK: [2010-12-18 Sat 22:08]--[2010-12-18 Sat 23:04] =>  0:56
-   :END:
-   :PROPERTIES:
+                                                                           :END:
+                                                                    :PROPERTIES:
    :Effort:   1:00
-   :END:
-** DONE [#A] add genautoload task                                  :computer:
+                                                                           :END:
+** DONE [#A] add genautoload task                                     :computer:
    SCHEDULED: <2010-12-20 Mon> CLOSED: [2010-12-20 Mon 12:03]
-   :LOGBOOK:
+                                                                       :LOGBOOK:
    CLOCK: [2010-12-20 Mon 12:00]--[2010-12-20 Mon 12:03] =>  0:03
    CLOCK: [2010-12-20 Mon 11:35]--[2010-12-20 Mon 11:52] =>  0:17
    CLOCK: [2010-12-20 Mon 10:57]--[2010-12-20 Mon 11:12] =>  0:15
-   :END:
-   :PROPERTIES:
+                                                                           :END:
+                                                                    :PROPERTIES:
    :Effort:   0:30
-   :END:
-** DONE [#A] set build file to auto install ent package            :computer:
+                                                                           :END:
+** DONE [#A] set build file to auto install ent package               :computer:
    SCHEDULED: <2010-12-20 Mon> CLOSED: [2010-12-20 Mon 12:24]
+                                                                       :LOGBOOK:
+   CLOCK: [2010-12-20 Mon 10:56]--[2010-12-20 Mon 11:30] =>  0:34
+                                                                           :END:
 ** TODO create command for finding file in project http://www.emacswiki.org/emacs/InteractivelyDoThings#toc12 :net:
-** TODO create command to open specific project config file        :computer:
+** STARTED [#A] create command to open specific project config file :computer:
+   SCHEDULED: <2010-12-20 Mon>
+                                                                       :LOGBOOK:
+   CLOCK: [2010-12-20 Mon 16:58]--[2010-12-20 Mon 17:54] =>  0:56
+                                                                           :END:
    
 
 
