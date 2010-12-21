@@ -64,15 +64,17 @@ Clock summary at [2010-12-20 Mon 16:57]
                                                                        :LOGBOOK:
    CLOCK: [2010-12-20 Mon 10:56]--[2010-12-20 Mon 11:30] =>  0:34
                                                                            :END:
-** TODO create command for finding file in project http://www.emacswiki.org/emacs/InteractivelyDoThings#toc12 :net:
-** STARTED [#A] create command to open specific project config file :computer:
+** TODO [#B] create command for finding file in project http://www.emacswiki.org/emacs/InteractivelyDoThings#toc12 :net:
    SCHEDULED: <2010-12-20 Mon>
+** DONE [#A] create command to open specific project config file   :computer:
+   SCHEDULED: <2010-12-20 Mon> CLOSED: [2010-12-20 Mon 18:04]
                                                                        :LOGBOOK:
    CLOCK: [2010-12-20 Mon 16:58]--[2010-12-20 Mon 17:54] =>  0:56
                                                                            :END:
    
 
 
+** TODO create tests
 
 * COMMENT Setup
 #+STARTUP: overview
