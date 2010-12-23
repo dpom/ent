@@ -1,3 +1,4 @@
 *~
 *.elc
 /src/main/lisp/ent-autoloads.el
+/ent-autoloads.el

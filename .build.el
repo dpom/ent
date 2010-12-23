@@ -19,8 +19,9 @@
 
 ;in this project the specific config file is the build file
 (setq ent-project-config-filename ".build.el") 
-                    
+(setq ent-clean-regexp "~$\\|\.elc$\\|semantic\.cache")                    
 
+ 
 (ent-init)
 
 ;; local functions

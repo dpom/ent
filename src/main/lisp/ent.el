@@ -74,6 +74,11 @@
   :group 'ent)
 
 
+(defcustom ent-default-exclude-dir-list (list "*.git" "*target")
+  "The list of directories to be excluded in file search."
+  :type '(list)
+  :group 'ent)
+
 ;;;; Global variables
 
 (defvar ent-project-name "" "Project name, must be set in the project init file.")
@@ -92,20 +97,12 @@
 
 (defvar ent-generated-autoload-file "")
 
+(defvar ent-exclude-dir-list () "Directories to be excluded from file search.")
+
 ;;;; Utility functions
 (defun expand-dir-name (dir &optional path)
   "Expand a local dir NAME using his PATH."
   (file-name-as-directory (expand-file-name dir path)))
-
-
-(defun ent-search-up-file (name dir)
-  "Search recursively up for a NAME file starting from DIR. Return file directory or nil if file not found"
-  (if (string= dir "/" )
-      nil
-    (let ((file (concat (file-name-as-directory dir) name)))
-      (if (file-readable-p file)
-	  dir
-	(ent-search-up-file name (file-name-directory (directory-file-name dir)))))))
 
 (defun ent-walk (dir regexp function)
   "Walk DIR recursively and execute FUNCTION for REGEXP match files"
@@ -120,7 +117,6 @@
       (if (string-match regexp dir) (funcall function dir)
         (mapc #'(lambda (x) (ent-dir-walk x regexp function))
               (directory-files (expand-file-name dir) t "[^.]$")))))
-
 
 (defun ent-rcopy (src dest regexp)
   "Recursive copy REGEXP files from SRC to DEST"
@@ -175,19 +171,17 @@
                               (ent-get-dep-list name)
                               ";"))))
 
-
 (defun ent-emacs (tsk file)
   "Run a batch emacs loading FILE and evaluating TSK function"
   (concat "emacs --batch --kill -l " file " -f " tsk))
 
-
 (defun task (name depends desc &optional func)
   "Insert NAME task in ent-tasks-list"
-  (setq tsk (intern (symbol-name name) ent-tasks))
-  (ent-put-dependencies tsk depends)
-  (ent-put-description tsk desc)
-  (if func (ent-put-function tsk func)
-    (ent-remove-function tsk)))
+  (let ((tsk (intern (symbol-name name) ent-tasks)))
+    (ent-put-dependencies tsk depends)
+    (ent-put-description tsk desc)
+    (if func (ent-put-function tsk func)
+      (ent-remove-function tsk))))
 
 (defun ent-find-project-file ()
   "Return the project file absolute path of the current project."
@@ -200,7 +194,7 @@
   "Remove all files matching ent-clean-regexp from current dir recursively."
   (let ((acc 0)
         (dir default-directory)
-        (regexp (or regexp ent-clean-regexp)))
+        (regexp (or regexp ent-clean-regexp ent-clean-default-regexp)))
     (displaying-byte-compile-warnings
      (message "\nClean: %s from %s" regexp dir)
      (ent-walk dir regexp #'(lambda (x)
@@ -211,16 +205,15 @@
      acc)))
 
 (defun ent-clean-init ()
-  (setq ent-clean-regexp ent-clean-default-regexp)
   (task 'clean ()  (documentation 'ent-clean-task) '(lambda (&optional file)
                                                       (ent-emacs "ent-clean-task" file))))
 
 ;; dirclean
 (defun ent-dirclean-task  (&optional regexp)
-  "Remove all directories matching ent-dir-clean-regexp from current dir recursively."
+  "Remove all directories matching ent-dirclean-regexp from current dir recursively."
   (let ((acc 0)
         (dir default-directory)
-        (regexp (or regexp ent-dirclean-regexp)))
+        (regexp (or regexp ent-dirclean-regexp ent-dirclean-default-regexp)))
     (displaying-byte-compile-warnings
      (message "\nDirClean: %s from %s" regexp dir)
      (ent-dir-walk dir regexp #'(lambda (x)
@@ -231,7 +224,6 @@
      acc)))
 
 (defun ent-dirclean-init ()
-  (setq ent-dirclean-regexp ent-dirclean-default-regexp)
   (task 'dirclean ()  (documentation 'ent-dirclean-task) '(lambda (&optional file)
                                                             (ent-emacs "ent-dirclean-task" file))))
 
@@ -251,7 +243,7 @@
 ;; elispbuild
 (defun ent-elispbuild-task (&optional arg)
   "Build an elisp project"
-  (let ((dir (expand-file-name ent-elisp-src-dir)))
+  (let ((dir (expand-file-name (or ent-elisp-src-dir ent-elisp-default-src-dir))))
     (displaying-byte-compile-warnings
      (message "Project %s\n" ent-project-name)
      (message "Build: compile el files found in %s" dir)
@@ -259,7 +251,6 @@
      (message "\nBuild: bin-compile command terminated"))))
 
 (defun ent-elispbuild-init ()
-  (setq ent-elisp-src-dir ent-elisp-default-src-dir)
   (task 'elispbuild () (documentation 'ent-elispbuild-task) '(lambda (&optional file)
                                                                (ent-emacs "ent-elispbuild-task" file))))
 
@@ -276,8 +267,6 @@
   (task 'mcopy ()  (documentation 'ent-mcopy-task) '(lambda (&optional file)
                                                       (ent-emacs "ent-mcopy-task" file))))
 
-
-
 ;;;; Tasks initialization
 (defun ent-init (&optional maxtasks)
   "Initialize the global variables with default values"
@@ -288,7 +277,6 @@
   (ent-help-init)
   (ent-elispbuild-init)
   (ent-mcopy-init))
-
 
 ;;;; Commands
 
@@ -315,29 +303,51 @@
   (interactive)
   (find-file-other-window (ent-find-project-file)))
 
-
 (defmacro ent-in-project (&rest body)
   "Execute body for the curent project."
   `(if (file-exists-p (ent-find-project-file))
-      (progn
-        (load (ent-find-project-file))
-        ,@body)
+       (progn
+         (load (ent-find-project-file))
+         ,@body)
      (message "Not in a project!")))
-  
-;; (defun ent-visit-config-file ()
-;;   "Visit the project specific config file."
-;;   (interactive)
-;;   (if (file-exists-p (ent-find-project-file))
-;;       (progn
-;;         (load (ent-find-project-file))
-;;         (find-file-other-window (expand-file-name ent-project-config-filename ent-project-home)))
-;;     (message "Not in a project!")))
-     
+
 ;;;###autoload
 (defun ent-visit-config-file ()
+  "Visit the project specific config file, ent-project-config-filename."
   (interactive)
   (ent-in-project
    (find-file-other-window (expand-file-name ent-project-config-filename ent-project-home))))
+
+;;;###autoload
+(defun ent-find-file ()
+  "Find a file from the project."
+  (interactive)
+  (ent-in-project
+   (let (project-files tbl)
+     (setq project-files 
+           (split-string 
+            (shell-command-to-string 
+             (concat "find "
+                     ent-project-home
+                     " \\( "
+                     (mapconcat (function (lambda (x) (concat "-name \"" x "\""))) (or ent-exclude-dir-list ent-default-exclude-dir-list) " -o  ")
+                     " \\) -prune -o -type f -print | grep -v \"" (or ent-clean-regexp ent-clean-default-regexp) "\""))
+            "\n"))
+     ;; populate hash table (display repr => path)
+     (setq tbl (make-hash-table :test 'equal))
+     (let (ido-list)
+       (mapc (lambda (path)
+               (let (key)
+                 ;; format path for display in ido list
+                 (setq key (replace-regexp-in-string "\\(.*?\\)\\([^/]+?\\)$" "\\2|\\1" path))
+                 ;; strip project root
+                 (setq key (replace-regexp-in-string ent-project-home "" key))
+                 ;; remove trailing | or /
+                 (setq key (replace-regexp-in-string "\\(|\\|/\\)$" "" key))
+                 (puthash key path tbl)
+                 (push key ido-list)))
+             project-files)
+       (find-file (gethash (ido-completing-read "project-files: " ido-list) tbl))))))
 
 ;; Key map
 
@@ -347,6 +357,7 @@
     (define-key map "x" 'ent)
     (define-key map "c" 'ent-visit-config-file)
     (define-key map "b" 'ent-visit-build-file)
+    (define-key map "f" 'ent-find-file)
     map))
 
 ;;;###autoload

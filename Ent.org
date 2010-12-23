@@ -4,22 +4,60 @@ Ent is a build tool like ant but working inside emacs and using elisp
 instead of XML.
 
 * Implementation
+** [2010-12-21 Tue] fileind file in project
+#+begin_src
+    (defun my-ido-project-files ()
+      "Use ido to select a file from the project."
+      (interactive)
+      (let (my-project-root project-files tbl)
+      (unless project-details (project-root-fetch))
+      (setq my-project-root (cdr project-details))
 
-*** [2010-12-12 Sun] in ENT define a ent-config-file variable and a command ent-goto-config-file
+      ;; get project files
+      (setq project-files 
+	    (split-string 
+	     (shell-command-to-string 
+	      (concat "find "
+		      my-project-root
+		      " \\( -name \"*.svn\" -o -name \"*.git\" \\) -prune -o -type f -print | grep -E -v \"\.(pyc)$\""
+		      )) "\n"))
+      ;; populate hash table (display repr => path)
+      (setq tbl (make-hash-table :test 'equal))
+      (let (ido-list)
+      (mapc (lambda (path)
+
+	      ;; format path for display in ido list
+	      (setq key (replace-regexp-in-string "\\(.*?\\)\\([^/]+?\\)$" "\\2|\\1" path))
+	      ;; strip project root
+	      (setq key (replace-regexp-in-string my-project-root "" key))
+	      ;; remove trailing | or /
+	      (setq key (replace-regexp-in-string "\\(|\\|/\\)$" "" key))
+	      (puthash key path tbl)
+	      (push key ido-list)
+	      )
+	    project-files
+	    )
+      (find-file (gethash (ido-completing-read "project-files: " ido-list) tbl)))))
+
+    ;; bind to a key for quick access
+    (define-key global-map [f6] 'my-ido-project-files)
+#+end_src
 
 * Tasks
 #+BEGIN: clocktable :maxlevel 2 :scope file
-Clock summary at [2010-12-20 Mon 16:57]
+Clock summary at [2010-12-23 Thu 17:55]
 
 | Headline                                    | Time   |      |
 |---------------------------------------------+--------+------|
-| *Total time*                                | *6:13* |      |
+| *Total time*                                | *8:09* |      |
 |---------------------------------------------+--------+------|
-| Tasks                                       | 6:13   |      |
+| Tasks                                       | 8:09   |      |
 | \__ DONE [#B] create ent project            |        | 0:45 |
 | \__ DONE [#A] convert ebld code to ent code |        | 4:19 |
 | \__ DONE [#A] add genautoload task          |        | 0:35 |
 | \__ DONE [#A] set build file to auto...     |        | 0:34 |
+| \__ DONE [#B] create command for finding... |        | 1:00 |
+| \__ DONE [#A] create command to open...     |        | 0:56 |
 #+END:
 
 ** DONE [#B] create ent project
@@ -64,17 +102,24 @@ Clock summary at [2010-12-20 Mon 16:57]
                                                                        :LOGBOOK:
    CLOCK: [2010-12-20 Mon 10:56]--[2010-12-20 Mon 11:30] =>  0:34
                                                                            :END:
-** TODO [#B] create command for finding file in project http://www.emacswiki.org/emacs/InteractivelyDoThings#toc12 :net:
-   SCHEDULED: <2010-12-20 Mon>
+** DONE [#B] create command for finding file in project http://www.emacswiki.org/emacs/InteractivelyDoThings#toc12 :net:
+   SCHEDULED: <2010-12-20 Mon> CLOSED: [2010-12-23 Thu 17:54]
+   :LOGBOOK:
+   CLOCK: [2010-12-23 Thu 17:46]--[2010-12-23 Thu 17:54] =>  0:08
+   CLOCK: [2010-12-22 Wed 18:29]--[2010-12-22 Wed 18:46] =>  0:17
+   CLOCK: [2010-12-22 Wed 17:16]--[2010-12-22 Wed 17:51] =>  0:35
+   :END:
 ** DONE [#A] create command to open specific project config file   :computer:
    SCHEDULED: <2010-12-20 Mon> CLOSED: [2010-12-20 Mon 18:04]
                                                                        :LOGBOOK:
+                                                                       CLOCK: [2010-12-23 Thu 17:54]
    CLOCK: [2010-12-20 Mon 16:58]--[2010-12-20 Mon 17:54] =>  0:56
                                                                            :END:
    
 
-
 ** TODO create tests
+
+   
 
 * COMMENT Setup
 #+STARTUP: overview
