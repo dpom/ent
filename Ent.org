@@ -43,7 +43,7 @@ instead of XML.
     (define-key global-map [f6] 'my-ido-project-files)
 #+end_src
 
-* Tasks
+* Tasks                                                              :@admin:
 #+BEGIN: clocktable :maxlevel 2 :scope file
 Clock summary at [2010-12-23 Thu 17:55]
 
@@ -59,6 +59,13 @@ Clock summary at [2010-12-23 Thu 17:55]
 | \__ DONE [#B] create command for finding... |        | 1:00 |
 | \__ DONE [#A] create command to open...     |        | 0:56 |
 #+END:
+** TODO create an ob file for xml
+   SCHEDULED: <2011-01-14 Fri>
+   [2011-01-08 Sat]
+** TODO create a task for batch tangling
+   SCHEDULED: <2011-01-13 Thu>
+  [2011-01-10 Mon]
+[[file:~/.emacs.d/contrib/dpom/.build.el::(setq%20ent-clean-regexp%20"~$\\|dpom-.*\.elc?$\\|semantic\.cache")][file:~/.emacs.d/contrib/dpom/.build.el::(setq ent-clean-regexp "~$\\|dpom-.*\.elc?$\\|semantic\.cache")]]
 
 ** DONE [#B] create ent project
    SCHEDULED: <2010-12-13 Mon> CLOSED: [2010-12-13 Mon 18:25]
@@ -116,8 +123,11 @@ Clock summary at [2010-12-23 Thu 17:55]
    CLOCK: [2010-12-20 Mon 16:58]--[2010-12-20 Mon 17:54] =>  0:56
                                                                            :END:
    
-** TODO create tests
-   SCHEDULED: <2010-12-27 Mon>
+** TODO [#B] create tests                                          :computer:
+   SCHEDULED: <2011-01-10 Mon>
+   :PROPERTIES:
+   :Effort:   2:00
+   :END:
 
    
 
