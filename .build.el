@@ -18,7 +18,7 @@
                             "\.elc?$")))
 
 ;in this project the specific config file is the build file
-(setq ent-project-config-filename ".build.el") 
+(setq ent-project-config-filename "Ent.org") 
 (setq ent-clean-regexp "~$\\|\.elc$\\|semantic\.cache")                    
 
  
