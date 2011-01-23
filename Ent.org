@@ -60,23 +60,22 @@ Clock summary at [2010-12-23 Thu 17:55]
 | \__ DONE [#B] create command for finding... |        | 1:00 |
 | \__ DONE [#A] create command to open...     |        | 0:56 |
 #+END:
-** TODO transform ent in LP project
-   SCHEDULED: <2011-01-21 Fri>
+** TODO [#B] transform ent in LP project
+   SCHEDULED: <2011-01-24 Mon>
   [2011-01-14 Fri]
-** TODO [#B] create an ob file for xml
-   SCHEDULED: <2011-01-24 Mon>
-   :PROPERTIES:
-   :Effort:   1:00
-   :END:
-   [2011-01-08 Sat]
 ** TODO [#B] create a task for batch tangling
-   SCHEDULED: <2011-01-24 Mon>
    :PROPERTIES:
    :Effort:   1:00
    :END:
   [2011-01-10 Mon]
-[[file:~/.emacs.d/contrib/dpom/.build.el::(setq%20ent-clean-regexp%20"~$\\|dpom-.*\.elc?$\\|semantic\.cache")][file:~/.emacs.d/contrib/dpom/.build.el::(setq ent-clean-regexp "~$\\|dpom-.*\.elc?$\\|semantic\.cache")]]
 
+** TODO [#B] create tests                                          :computer:
+   :PROPERTIES:
+   :Effort:   2:00
+   :END:
+
+** TODO write documentation
+** TODO put project on github
 ** DONE [#B] create ent project
    SCHEDULED: <2010-12-13 Mon> CLOSED: [2010-12-13 Mon 18:25]
                                                                        :LOGBOOK:
@@ -133,17 +132,6 @@ Clock summary at [2010-12-23 Thu 17:55]
    CLOCK: [2010-12-20 Mon 16:58]--[2010-12-20 Mon 17:54] =>  0:56
                                                                            :END:
    
-** TODO [#B] create tests                                          :computer:
-   SCHEDULED: <2011-01-24 Mon>
-   :PROPERTIES:
-   :Effort:   2:00
-   :END:
-
-   
-
-
-** TODO write documentation
-** TODO put project on github
 
 
 * COMMENT Setup
