@@ -61,7 +61,7 @@ Clock summary at [2010-12-23 Thu 17:55]
 | \__ DONE [#A] create command to open...     |        | 0:56 |
 #+END:
 ** TODO [#B] transform ent in LP project
-   SCHEDULED: <2011-02-21 Mon>
+   SCHEDULED: <2011-02-28 Mon>
   [2011-01-14 Fri]
 ** TODO [#B] create a task for batch tangling
    :PROPERTIES:
