@@ -2,7 +2,7 @@
 ;; Copyright (C) 2009 Dan Pomohaci (dpom)
 
 ;; Author: Dan Pomohaci <dan.pomohaci@gmail.com>
-;; Version: 0.2
+;; Version: 0.3
 ;; Keywords: build ant task 
 
 ;; This program is free software; you can redistribute it and/or
@@ -28,6 +28,11 @@
   :group 'processes)
 
 
+(defcustom ent-emacs-exec "emacs"
+  "Emacs executable"
+  :type '(string)
+  :group 'ent)
+
 (defcustom ent-file-name ".build.el"
   "Local ent file name"
   :type '(string)
@@ -39,7 +44,7 @@
   :type '(string)
   :group 'ent)
 
-(defcustom ent-default-task-number 20
+(defcustom ent-default-task-number 40
   "Default task number"
   :type '(integer)
   :group 'ent)
@@ -104,7 +109,8 @@
   "Expand a local dir NAME using his PATH."
   (file-name-as-directory (expand-file-name dir path)))
 
-(defun ent-walk (dir regexp function)
+(defun ent-walk
+ (dir regexp function)
   "Walk DIR recursively and execute FUNCTION for REGEXP match files"
   (cond
    ((file-regular-p dir) (and (string-match regexp dir) (funcall function dir)))
@@ -127,7 +133,7 @@
 
 (defun ent-mcopy ()
   "Multiple recursive copy using ent-mcopy-list."
-  (mapc '(lambda (y)
+  (mapc #'(lambda (y)
            (message "%s" y)
            (apply 'ent-rcopy y))
         ent-mcopy-list))
@@ -164,7 +170,7 @@
 (defun ent-batch (dir name tasks &optional file)
   "Run the NAME task dep list in DIR directory using FILE as init file"
   (compile (concat "cd " dir ";"
-                   (mapconcat '(lambda (x)
+                   (mapconcat #'(lambda (x)
                                  (let ((tsk (intern (symbol-name x) tasks)))
                                    (if (ent-has-function tsk)
                                        (funcall tsk file))))
@@ -173,7 +179,7 @@
 
 (defun ent-emacs (tsk file)
   "Run a batch emacs loading FILE and evaluating TSK function"
-  (concat "emacs --batch --kill -l " file " -f " tsk))
+  (concat ent-emacs-exec " --batch --kill -l " file " -f " tsk))
 
 (defun task (name depends desc &optional func)
   "Insert NAME task in ent-tasks-list"

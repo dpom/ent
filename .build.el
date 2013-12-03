@@ -10,7 +10,7 @@
 
 (setq ent-project-name "ent")
 
-(setq deploy-dir (expand-dir-name ent-project-name "~/.emacs.d/contrib/"))
+(setq deploy-dir (expand-dir-name ent-project-name "~/.emacs.d/site-lisp/"))
 
 (setq ent-mcopy-list (list
                       (list (expand-dir-name ent-elisp-default-src-dir ent-project-home)
@@ -19,9 +19,7 @@
 
 ;in this project the specific config file is the build file
 (setq ent-project-config-filename "Ent.org") 
-(setq ent-clean-regexp "~$\\|\.elc$\\|semantic\.cache")                    
-
- 
+(setq ent-clean-regexp "~$\\|\.elc$\\|semantic\.cache")
 (ent-init)
 
 ;; local functions
