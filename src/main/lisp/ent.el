@@ -44,7 +44,7 @@
   :type '(string)
   :group 'ent)
 
-(defcustom ent-default-task-number 40
+(defcustom ent-default-task-number 80
   "Default task number"
   :type '(integer)
   :group 'ent)
@@ -73,7 +73,7 @@
   :type '(string)
   :group 'ent)
 
-(defcustom ent-project-config-filename "pom.xml"
+(defcustom ent-project-config-filename "project.clj"
   "Project specific config file name"
   :type '(string)
   :group 'ent)
@@ -150,7 +150,7 @@
 (defsubst ent-remove-function (tsk) (fmakunbound tsk))
 
 (defun flatten (x)
-  (labels ((rec (x acc)
+  (cl-labels ((rec (x acc)
                 (cond ((null x) acc)
                       ((atom x) (cons x acc))
                       (t (rec (car x) (rec (cdr x) acc))))))
@@ -179,7 +179,7 @@
 
 (defun ent-emacs (tsk file)
   "Run a batch emacs loading FILE and evaluating TSK function"
-  (concat ent-emacs-exec " --batch --kill -l " file " -f " tsk))
+  (concat ent-emacs-exec " --batch -u dan --kill -l " file " -f " tsk))
 
 (defun task (name depends desc &optional func)
   "Insert NAME task in ent-tasks-list"
