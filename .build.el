@@ -1,5 +1,5 @@
 (setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
-(add-to-list 'load-path (concat ent-project-home "src/main/lisp/"))
+(add-to-list 'load-path (concat ent-project-home "src/elisp/"))
 (require 'ent)
 (setq debug-on-error t)
 
@@ -10,7 +10,7 @@
 
 (setq ent-project-name "ent")
 
-(setq deploy-dir (expand-dir-name ent-project-name "~/.emacs.d/site-lisp/"))
+(setq deploy-dir "~/pers/dotfiles/.spacemacs.d/layers/ent/local/ent/")
 
 (setq ent-mcopy-list (list
                       (list (expand-dir-name ent-elisp-default-src-dir ent-project-home)

@@ -56,7 +56,7 @@
   :group 'ent)
 
 
-(defcustom ent-dirclean-default-regexp "target"
+(defcustom ent-dirclean-default-regexp "target/"
   "Default regular expression to match garbage directories"
   :type '(string)
   :group 'ent)
@@ -68,7 +68,7 @@
   :group 'ent)
 
 
-(defcustom ent-elisp-default-src-dir "src/main/lisp/"
+(defcustom ent-elisp-default-src-dir "src/elisp/"
   "Default lisp source directory"
   :type '(string)
   :group 'ent)
