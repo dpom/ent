@@ -1,0 +1,52 @@
+#+AUTHOR: Dan Pomohaci
+#+EMAIL: dan.pomohaci@gmail.com
+#+STARTUP: overview indent align inlineimages
+
+* ent
+
+A build tool like ant but working inside emacs and using elisp syntax
+
+** Table of Contents                                               :noexport:
+:PROPERTIES:
+:TOC:      :include siblings :depth 2
+:END:
+:CONTENTS:
+- [[Features][Features]]
+- [[Configuration][Configuration]]
+- [[Tasks][Tasks]]
+  - [[Backlog][Backlog]]
+  - [[1.0 Initial version][1.0 Initial version]]
+  - [[2.0 Dash version][2.0 Dash version]]
+:END:
+
+** Features
+
+** Configuration
+
+** Tasks
+:PROPERTIES:
+:CATEGORY: Ent
+:END:
+
+*** Backlog
+
+*** 1.0 Initial version
+
+**** DONE create project layout
+SCHEDULED: <2019-04-20 Sb>
+:LOGBOOK:
+CLOCK: [2019-04-20 Sb 17:56]--[2019-04-20 Sb 18:21] =>  0:25
+CLOCK: [2019-04-20 Sb 16:59]--[2019-04-20 Sb 17:24] =>  0:25
+CLOCK: [2019-04-20 Sb 08:36]--[2019-04-20 Sb 08:56] =>  0:20
+:END:
+
+**** DONE refactor project to work with straight
+SCHEDULED: <2019-10-20 Du>
+
+*** 2.0 Dash version
+**** INPROGRESS build a manual test plan
+SCHEDULED: <2021-08-21 Sb>
+:LOGBOOK:
+CLOCK: [2021-08-21 Sb 09:11]--[2021-08-21 Sb 09:36] =>  0:25
+:END:
+**** fix flatten bug

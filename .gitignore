@@ -1,4 +1,8 @@
-*~
+.cask/
 *.elc
-/src/main/lisp/ent-autoloads.el
+*~
+*.stamp
 
+# Added automatically by ‘eldev init’.
+/.eldev
+/Eldev-local

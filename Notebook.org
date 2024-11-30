@@ -1,0 +1,15 @@
+#+TITLE: Notebook
+#+DESCRIPTION: development notes for ent project
+#+AUTHOR: Dan Pomohaci
+#+EMAIL: dan.pomohaci@gmail.com
+#+STARTUP: overview indent align inlineimages
+#+PROPERTY: header-args :tangle tangle-file :cache yes :results silent :padline no
+
+* 2021-08-21
+
+- proiectul trebuie refactorizat pentru functioneaza aleator si toate task-urile globale nu mai merg.
+- primul lucru: "ascutit creioanele":
+  - in versiunea initiala am folosit cask, intretimp am uitat totul despre cask asa ca acum am 2 variante:
+    1. sa reinvat cask
+    2. sa invat [[https://github.com/doublep/eldev][eldev]]
+ - o sa incerc sa invat eldev pt ca mi se pare mai accesibil
