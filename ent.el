@@ -6,7 +6,7 @@
 ;; Version: 2.0
 ;; Homepage: https://gitlab.com/dpom/ent
 ;; Keywords: elisp tools maint
-;; Package-Requires: ((emacs "25.1") (dash "2.19.0") cl-lib  (seq))
+;; Package-Requires: ((emacs "25.1") cl-lib  (seq))
 
 ;; This file is not part of GNU Emacs
 
@@ -186,15 +186,7 @@ The SRC and DEST must be absolute path.")
           (progn
             (shell-cd dir)
             (shell-command action out-buffer out-buffer))
-        (insert "no action\n"))
-      ;; t (insert "no action\n"))
-      ))
-  ;; (cond
-  ;;  ;; ((functionp action) (funcall action dir))
-  ;; ((stringp action) (progn
-  ;;                     (shell-cd dir)
-  ;;                     (shell-command action out-buffer out-buffer)))
-  ;; t (insert "no action\n"))
+        (insert "no action\n"))))
   (insert (format "End %s\n" (task-name tsk))))
 
 ;;;; Global tasks
@@ -297,6 +289,7 @@ You could specify the TASKNAME."
                                              (plist-keys ent-tasks)
                                              nil t)))
     (run-task (plist-get ent-tasks taskname) ent-tasks dir out-buffer)
+    (ansi-color-apply-on-region (point-min) (point-max))
     (compilation-mode)))
 
 ;;;###autoload
@@ -356,7 +349,7 @@ You could specify the TASKNAME."
 ;;;###autoload
 (defvar ent-prefix-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "x" 'ent)
+    (define-key map "x" 'ent-run)
     (define-key map "c" 'ent-visit-config-file)
     (define-key map "b" 'ent-visit-build-file)
     (define-key map "f" 'ent-find-file)

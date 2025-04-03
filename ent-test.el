@@ -5,11 +5,9 @@
 ;;; Code:
 
 (require 'ert)
-(require 'dash)
 
 (defvar project-home )
 (setq project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
-
 
 (ert-deftest ent-test-find-project-file ()
   (load-file (expand-file-name "ent.el" project-home))
