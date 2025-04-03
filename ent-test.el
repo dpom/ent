@@ -1,4 +1,8 @@
-; -*- mode: emacs-lisp; lexical-binding: t -*-
+;;; ent-test.el --- Project tests -*- mode: emacs-lisp; lexical-binding: t -*-
+
+;; Package-Requires: ((emacs "25.1"))
+
+;;; Code:
 
 (require 'ert)
 (require 'dash)
@@ -10,11 +14,6 @@
 (ert-deftest ent-test-find-project-file ()
   (load-file (expand-file-name "ent.el" project-home))
   (should (equal (expand-file-name ".ent.el" project-home) (ent-find-project-file))))
-
-(ert-deftest ent-test-tasks ()
-  (load (expand-file-name "test/ent-config1.el" project-home))
-  (should (= 100 (length ent-tasks)))
-  (should (equal [elispbuild task env init clean mcopy tangle genautoload help info dirclean] (seq-remove (lambda (x) (eq x 0)) ent-tasks))))
 
 (provide 'ent-test)
 ;;; ent-test.el ends here

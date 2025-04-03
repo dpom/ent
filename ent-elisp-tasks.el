@@ -1,6 +1,6 @@
 ;;; ent-elisp-tasks.el --- useful elisp dev tasks -*- lexical-binding: t -*-
 
-;; Copyright (C) 2019  Dan Pomohaci
+;; Copyright (C) 2019, 2025  Dan Pomohaci
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 ;; For a full copy of the GNU General Public License
 ;; see <http://www.gnu.org/licenses/>.
 
+;; Package-Requires: ((emacs "25.1"))
 
 ;;; Commentary:
 

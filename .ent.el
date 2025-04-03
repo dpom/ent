@@ -10,20 +10,15 @@
 
 (load-file "ent.el")
 
-(load-file "ent-elisp-tasks.el")
-
-(ent-tasks-init)
-(ent-elisp-tasks-init)
-
 ;; tasks
 
-(task 'clean '() "clean tmp files" '(lambda (&optional x) "eldev clean" ))
+(task :eldev-clean '(:clean) "clean tmp files" "eldev clean")
 
-(task 'lint '(clean) "emacs lisp lint" '(lambda (&optional x) "eldev lint"))
+(task :lint '(:eldev-clean) "emacs lisp lint" "eldev lint")
 
-(task 'build '() "build package" '(lambda (&optional x) "eldev build"))
+(task :build '() "build package" "eldev build")
 
-(task 'test '() "run tests" '(lambda (&optional x) "eldev test"))
+(task :test '() "run tests" "eldev test")
 
 
 (provide '.ent)

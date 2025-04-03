@@ -13,3 +13,175 @@
     1. sa reinvat cask
     2. sa invat [[https://github.com/doublep/eldev][eldev]]
  - o sa incerc sa invat eldev pt ca mi se pare mai accesibil
+   
+* 2025-03-29
+
+- am instalat emacs30 si ent nu mai merge
+- pentru a depana ent trebuie intai sa pun la punct un mediu de dezvoltare nix pentru elisp similar cu ce am pentru clojure si python. 
+- ma inspir din template cljproj:
+  - flake
+    #+begin_src nix :tangle flake.nix
+{
+  description = "flake for ent project";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+  };
+  outputs = { flake-parts, ... }@inputs:
+    flake-parts.lib.mkFlake { inherit inputs;} {
+      debug = true;
+      systems = [ "x86_64-linux" ];
+      perSystem = { config, self', inputs', pkgs, system, ... }: {
+        packages = rec {
+          ent = pkgs.callPackage ./default.nix {
+            inherit (pkgs) fetchFromGitHub;
+            trivialBuild = pkgs.emacs.pkgs.trivialBuild;
+            seq = pkgs.emacsPackages.seq;
+            dash = pkgs.emacsPackages.dash;
+          };
+          default = ent;
+        };
+        devShells.default = pkgs.mkShell {
+          packages = [
+            self'.packages.default
+          ];
+        };      };
+    };
+}
+    #+end_src
+  - default.nix:
+    #+begin_src nix :tangle default.nix
+{
+  lib,
+  trivialBuild,
+  dash,
+  seq,
+  fetchFromGitHub
+}:
+trivialBuild rec {
+  pname = "ent";
+  version = "v2.0";
+  src = ./.;
+
+  # elisp dependencies
+  propagatedUserEnvPkgs = [
+    dash
+    seq
+  ];
+  buildInputs = propagatedUserEnvPkgs;
+  
+  meta = with lib; {
+    description = "A build tool like ant but working inside emacs and using elisp syntax";
+    homepage = "https://github.com/dpom/ent";
+    license = licenses.gpl3;
+    platforms = platforms.all;
+  };
+
+}
+    #+end_src 
+  - envrc:
+    #+begin_src shell :tangle .envrc
+source_env_if_exists .envrc.local
+use flake
+    #+end_src
+
+* 2025-04-02
+
+- refactor:
+  #+begin_src emacs-lisp
+(setq initfile "~/pers/projects/ent/ent.el")
+(load initfile)
+ent-tasks
+[#<obarray n=12> 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+(type-of ent-tasks)
+vector
+
+(cl-defstruct task name doc deps action)
+
+(defvar tasks ())
+
+(setq test (make-task :doc (documentation 'ent-clean-task)
+                      :deps ()
+                      :func '(lambda (&optional file)
+                               (ent-emacs "ent-clean-task" file))))
+(defun task (name deps doc func)
+  (let ((tsk (make-task :doc doc
+                        :deps deps
+                        :func func)))
+    (setq tasks (plist-put tasks name tsk))))
+
+(task 'clean () (documentation 'ent-clean-task) '(lambda (&optional file)
+                                                   (ent-emacs "ent-clean-task" file)))
+
+
+(mapcar #'car tasks)
+
+(setq tasks (remove 'clean tasks))
+
+(cl-remf tasks nil)
+
+(setq tasks ())
+
+(defun plist-keys (plist)
+  "Get just the keys of a plist."
+  (cl-loop for key in plist by #'cddr collecting key))
+
+(defun plist-values (plist)
+  "Get just the values of a plist."
+  (cl-loop for value in (rest plist) by #'cddr collecting value))
+
+(plist-keys tasks)
+
+(defun symbol-to-string (symbol)
+  (format "%s" symbol))
+
+(defun task (name deps doc &optional action)
+  (let ((tsk (make-task :name name
+                        :doc doc
+                        :deps (mapcar 'symbol-to-string deps)
+                        :action action)))
+    (setq tasks (plist-put tasks (symbol-to-string name) tsk))))
+
+
+(defun run-task (tsk dir out-buffer)
+  (insert (format "Start %s\n" (task-name tsk)))
+  (when (task-deps tsk)
+    (dolist (dt (task-deps tsk))
+      (run-task (plist-get tasks (symbol-to-string dt)) dir out-buffer)))
+  (let ((action (task-action tsk)))
+    (cond
+     ((functionp action) (funcall action dir))
+     ((stringp action) (do
+                        (shell-cd dir)
+                        (shell-command action out-buffer out-buffer)))
+     t (insert "no action\n")))
+  (insert (format "End %s\n" (task-name tsk))))
+
+
+(defun ent2 (dir)
+  (let ((initfile (ent-find-project-file))
+        (dir (locate-dominating-file default-directory ent-project-config-filename))
+        (out-buffer (generate-new-buffer "*ent-out*" )))
+    (setq tasks ())
+    (switch-to-buffer out-buffer)
+    (load initfile)
+    (if (not taskname)
+        (setq taskname (ido-completing-read  "Command: "
+                                             (plist-keys tasks)
+                                             nil t)))
+    (run-task (plist-get tasks taskname) dir out-buffer)))
+
+(defun ent-clean  (dir)
+  "Remove all files matching REGEXP or ent-clean-regexp from current dir recursively."
+  (let ((acc 0)
+        (regexp (or ent-clean-regexp ent-clean-default-regexp)))
+    (displaying-byte-compile-warnings
+     (insert "\nclean: %s from %s" regexp dir)
+     (ent-walk dir regexp #'(lambda (x)
+                              (delete-file (expand-file-name x))
+                              (setq acc (+ acc 1))
+                              (message "%s deleted" (expand-file-name x))))
+     (message "clean: command terminated %d files removed" acc)
+     acc)))
+  #+end_src

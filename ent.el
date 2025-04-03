@@ -1,6 +1,6 @@
-;;; ent.el --- Emacs build tool
+;;; ent.el --- Emacs build tool -*- mode: emacs-lisp; lexical-binding: t -*-
 
-;; Copyright (C) 2019  Dan Pomohaci
+;; Copyright (C) 2019, 2025  Dan Pomohaci
 
 ;; Author: Dan Pomohaci
 ;; Version: 2.0
@@ -37,40 +37,31 @@
 ;; Custom variables
 
 (defgroup ent nil
-  "Emacs build tool"
+  "Emacs build tool."
   :version "2.0"
   :group 'tools
-  :group 'processes)
-
+  :group '
+  processes)
 
 (defcustom ent-emacs-exec "emacs"
   "Emacs executable."
   :type '(string)
   :group 'ent)
 
-(defcustom ent-default-task-number 200
-  "Default task number."
-  :type '(integer)
-  :group 'ent)
-
-
-(defcustom ent-default-task 'clean
+(defcustom ent-default-task :clean
   "Default task."
   :type '(symbol)
   :group 'ent)
-
 
 (defcustom ent-dirclean-default-regexp "target"
   "Default regular expression to match garbage directories."
   :type '(string)
   :group 'ent)
 
-
 (defcustom ent-clean-default-regexp "~$"
   "Default regular expression to match garbage files."
   :type '(string)
   :group 'ent)
-
 
 (defcustom ent-elisp-default-src-dir "./"
   "Default Lisp source directory."
@@ -154,226 +145,159 @@ The SRC and DEST must be absolute path.")
             (apply 'ent-rcopy y))
         ent-mcopy-list))
 
-(defsubst ent-get-name (tsk)
-  "Get TSK name."
-  (symbol-name tsk))
 
-(defsubst ent-get-dependencies (tsk)
-  "Get TSK dependencies."
-  (get tsk :dependencies))
+(cl-defstruct task name doc deps action)
 
-(defsubst ent-get-description (tsk)
-  "Get TSK description."
-  (get tsk :description))
+(defun plist-keys (plist)
+  "Get just the keys of a PLIST."
+  (cl-loop for key in plist by #'cddr collecting key))
 
-(defsubst ent-get-function (tsk)
-  "Get TSK function."
-  (symbol-function tsk))
+(defun plist-values (plist)
+  "Get just the values of a PLIST."
+  (cl-loop for value in (rest plist) by #'cddr collecting value))
 
-(defsubst ent-put-dependencies (tsk val)
-  "Put VAL as TSK dependencies."
-  (put tsk :dependencies val))
+(defun symbol-to-string (symbol)
+  "Convert a SYMBOL in string."
+  (format "%s" symbol))
 
-(defsubst ent-put-description (tsk val)
-  "Put VAL as TSK description."
-  (put tsk :description val))
 
-(defsubst ent-put-function (tsk val)
-  "Put VAL as TSK function."
-  (fset tsk val))
-
-(defsubst ent-get-task (name)
-  "Get task NAME."
-  (intern-soft name ent-tasks))
-
-(defsubst ent-has-function (task)
-  "Return not-nil if TASK is a function."
-  (fboundp task))
-
-(defsubst ent-remove-function (task)
-  "Make TASK function definition nil."
-  (fmakunbound task))
-
-(defun ent-flatten (x)
-  "Flatten X."
-  (cl-labels ((rec (x acc)
-                   (cond ((null x) acc)
-                         ((atom x) (cons x acc))
-                         (t (rec (car x) (rec (cdr x) acc))))))
-    (rec x nil)))
-
-(defun ent-parse-dep (dep subprojects dir)
-  "Parse DEP and return a dependency item \(TASK PROJECT-DIR\) using SUBPROJECTS and DIR."
-  (if (listp dep)
-      (list (car dep) (expand-file-name (cdr (assoc (cdr dep) subprojects)) dir))
-    (list dep dir)))
-
-(defun ent-get-dep-list (name)
-  "Create a complete NAME task dependencies list."
-  (let ((task (intern (symbol-name name) ent-tasks)))
-    (delete-dups (ent-flatten (append (mapcar 'ent-get-dep-list  (ent-get-dependencies task)) name)))))
-
-(defun ent-batch (dir name tasks &optional file)
-  "Run the NAME task dep list in DIR directory using FILE as init file."
-  (compile (concat "cd " dir ";"
-                   "export EMACSLOADPATH=\"" (ent-expand-dir-name dir) ":\";"
-                   (mapconcat #'(lambda (x)
-                                  (let ((task (intern (symbol-name x) tasks)))
-                                    (if (ent-has-function task)
-                                        (funcall task file))))
-                              (ent-get-dep-list name)
-                              ";"))))
-
-(defun ent-emacs (task file)
-  "Run a batch Emacs loading FILE and evaluating TASK function."
-  (concat ent-emacs-exec " --batch -u dan --kill -l \"" file "\" -f " task))
-
-(defun task (name depends desc &optional func)
-  "Create a task with NAME, DEPENDS, DESC and FUNC and insert it in the ent-tasks-list."
-  (let ((task (intern (symbol-name name) ent-tasks)))
-    (ent-put-dependencies task depends)
-    (ent-put-description task desc)
-    (if func (ent-put-function task func)
-      (ent-remove-function task))))
+(defun task (name deps doc &optional action)
+  "Create a task and add it to the tasks."
+  (let ((tsk (make-task :name name
+                        :doc doc
+                        :deps (mapcar 'symbol-to-string deps)
+                        :action action)))
+    (setq ent-tasks (plist-put ent-tasks (symbol-to-string name) tsk))))
 
 (defun ent-find-project-file ()
   "Return the project file absolute path of the current project."
   (expand-file-name ent-project-config-filename (locate-dominating-file default-directory ent-project-config-filename)))
 
+(defun run-task (tsk tasks dir out-buffer)
+  "Run a TSK from TASKS in DIR, results displayed in OUT-BUFFER."
+  (insert (format "Start %s\n" (task-name tsk)))
+  (when (task-deps tsk)
+    (dolist (dt (task-deps tsk))
+      (funcall #'run-task (plist-get tasks (symbol-to-string dt)) tasks dir out-buffer)))
+  (when-let* ((action (task-action tsk)))
+    (if (functionp action)
+        (funcall action dir)
+      (if (stringp action)
+          (progn
+            (shell-cd dir)
+            (shell-command action out-buffer out-buffer))
+        (insert "no action\n"))
+      ;; t (insert "no action\n"))
+      ))
+  ;; (cond
+  ;;  ;; ((functionp action) (funcall action dir))
+  ;; ((stringp action) (progn
+  ;;                     (shell-cd dir)
+  ;;                     (shell-command action out-buffer out-buffer)))
+  ;; t (insert "no action\n"))
+  (insert (format "End %s\n" (task-name tsk))))
+
 ;;;; Global tasks
 
 ;; clean
-(defun ent-clean-task  (&optional regexp)
-  "Remove all files matching REGEXP or ent-clean-regexp from current dir recursively."
+(defun ent-clean-action (dir)
+  "Remove all files matching ent-clean-regexp from DIR recursively."
   (let ((acc 0)
-        (dir default-directory)
-        (regexp (or regexp ent-clean-regexp ent-clean-default-regexp)))
+        (regexp (or ent-clean-regexp ent-clean-default-regexp)))
     (displaying-byte-compile-warnings
-     (message "\nClean: %s from %s" regexp dir)
+     (insert (format "clean: %s from %s\n" regexp dir))
      (ent-walk dir regexp #'(lambda (x)
                               (delete-file (expand-file-name x))
                               (setq acc (+ acc 1))
-                              (message "%s deleted" (expand-file-name x))))
-     (message "Clean: command terminated %d files removed" acc)
+                              (insert (format "clean: %s deleted\n" (expand-file-name x)))))
+     (insert (format "clean: command terminated %d files removed\n" acc))
      acc)))
 
-(defun ent-clean-init ()
-  "Initialise the clean task."
-  (task 'clean ()  (documentation 'ent-clean-task) '(lambda (&optional file)
-                                                      (ent-emacs "ent-clean-task" file))))
 
 ;; dirclean
-(defun ent-dirclean-task  (&optional regexp)
-  "Remove all directories matching REGEXP or ent-dirclean-regexp from current dir recursively."
+(defun ent-dirclean-action (dir)
+  "Remove all directories ent-dirclean-regexp from DIR recursively."
   (let ((acc 0)
-        (dir default-directory)
-        (regexp (or regexp ent-dirclean-regexp ent-dirclean-default-regexp)))
+        (regexp (or ent-dirclean-regexp ent-dirclean-default-regexp)))
     (displaying-byte-compile-warnings
-     (message "\nDirClean: %s from %s" regexp dir)
+     (insert (format "\nDirClean: %s from %s" regexp dir))
      (ent-dir-walk dir regexp #'(lambda (x)
                                   (dired-delete-file (expand-file-name x) 'always)
                                   (setq acc (+ acc 1))
-                                  (message "%s deleted" (expand-file-name x))))
-     (message "DirClean: command terminated %d directories removed" acc)
+                                  (insert (format  "%s deleted" (expand-file-name x)))))
+     (insert (format  "DirClean: command terminated %d directories removed" acc))
      acc)))
 
-(defun ent-dirclean-init ()
-  "Initialise the dirclean task."
-  (task 'dirclean ()  (documentation 'ent-dirclean-task) '(lambda (&optional file)
-                                                            (ent-emacs "ent-dirclean-task" file))))
-
-
 ;; help
-(defun ent-help-task (&optional arg)
+(defun ent-help-action (&optional arg)
   "Display tasks description.
 ARG is only for compatibility with the other functions."
   (displaying-byte-compile-warnings
-   (message "\nHelp:")
-   (mapatoms #'(lambda (x) (message "%s\t- %s" (ent-get-name x) (ent-get-description x)))
-             ent-tasks)))
+   (insert (format  "\nHelp:"))
+   (dolist (x (ent--values ent-tasks))
+     (insert (format  "%s\t- %s" (task-name x) (task-doc x))))))
 
-(defun ent-help-init ()
-  "Initialise the help task."
-  (task 'help ()  (documentation 'ent-help-task) '(lambda (&optional file)
-                                                    (ent-emacs "ent-help-task" file))))
 ;; env
-(defun ent-env-task (&optional arg)
+(defun ent-env-action (&optional arg)
   "Display environment variables.
 ARG is only for compatibility with the other functions."
   (displaying-byte-compile-warnings
-   (message "\nEnv:")
-   (message "load-path: %s" load-path)
-   (message "arg: %s" arg)
-   (message "project name: %s" ent-project-name)
-   (message "project dir: %s" ent-project-home)
-   (message "project tasks: %s" (seq-remove (lambda (elt) (and (numberp elt) (zerop elt))) ent-tasks))
-
-   ))
-
-(defun ent-env-init ()
-  "Initialise the help task."
-  (task 'env ()  (documentation 'ent-env-task) '(lambda (&optional file)
-                                                  (ent-emacs "ent-env-task" file))))
-
+   (insert (format  "\nEnv:"))
+   (insert (format  "load-path: %s" load-path))
+   (insert (format  "arg: %s" arg))
+   (insert (format  "project name: %s" ent-project-name))
+   (insert (format  "project dir: %s" ent-project-home))
+   (insert (format  "project tasks: %s" (plist-keys ent-tasks)))))
 
 ;; elispbuild
-(defun ent-elispbuild-task (&optional arg)
-  "Build an elisp project.
+(defun ent-elispbuild-action (dir)
+  "Build an elisp project from DIR.
 ARG is only for compatibility with the other fs functions."
-  (let ((dir (expand-file-name (or ent-elisp-src-dir ent-elisp-default-src-dir))))
-    (displaying-byte-compile-warnings
-     (message "Project %s\n" ent-project-name)
-     (message "Build: compile el files found in %s" dir)
-     (byte-recompile-directory dir 0)
-     (message "\nBuild: bin-compile command terminated"))))
-
-(defun ent-elispbuild-init ()
-  "Initialise the elispbuild task."
-  (task 'elispbuild () (documentation 'ent-elispbuild-task) '(lambda (&optional file)
-                                                               (ent-emacs "ent-elispbuild-task" file))))
+  (displaying-byte-compile-warnings
+   (insert (format  "Project %s\n" ent-project-name))
+   (insert (format  "Build: compile el files found in %s" dir))
+   (byte-recompile-directory dir 0)
+   (insert (format  "\nBuild: bin-compile command terminated"))))
 
 ;; mcopy
-(defun ent-mcopy-task  (&optional regexp)
+(defun ent-mcopy-action  (&optional regexp)
   "Multiple copy using REGEXP or ent-mcopy-list recursively."
   (let ((dir default-directory))
     (displaying-byte-compile-warnings
-     (message "\nMCopy")
+     (insert (format  "\nMCopy"))
      (ent-mcopy)
-     (message "\nMCcopy: command terminated"))))
-
-(defun ent-mcopy-init ()
-  "Initialise mcopy task."
-  (task 'mcopy ()  (documentation 'ent-mcopy-task) '(lambda (&optional file)
-                                                      (ent-emacs "ent-mcopy-task" file))))
-
-;;;; Tasks initialization
-(defun ent-tasks-init (&optional maxtasks)
-  "Initialize the global variables with default values.
-Optional you could set MAXTASKS."
-  (if (not maxtasks) (setq maxtasks ent-default-task-number))
-  (setq ent-tasks (make-vector maxtasks 0))
-  (ent-clean-init)
-  (ent-dirclean-init)
-  (ent-help-init)
-  (ent-env-init)
-  (ent-elispbuild-init)
-  (ent-mcopy-init))
+     (insert (format  "\nMCcopy: command terminated")))))
 
 ;;;; Commands
 
+(defun ent-add-default-tasks ()
+  "Add default tasks."
+  (task :clean ()  (documentation 'ent-clean-action) 'ent-clean-action)
+  (task :dirclean ()  (documentation 'ent-dirclean-action) 'ent-dirclean-action)
+  (task :help ()  (documentation 'ent-help-action) 'ent-help-action)
+  (task :env ()  (documentation 'ent-env-action) 'ent-env-action)
+  (task :elispbuild () (documentation 'ent-elispbuild-action) 'ent-elispbuild-action)
+  (task :mcopy ()  (documentation 'ent-mcopy-action) 'ent-mcopy-action))
+
+
 ;;;###autoload
-(defun ent (&optional taskname)
+(defun ent-run (&optional taskname)
   "Main entry point for ent.
 You could specify the TASKNAME."
   (interactive)
   (let ((initfile (ent-find-project-file))
-        (dir (locate-dominating-file default-directory ent-project-config-filename)))
+        (dir (locate-dominating-file default-directory ent-project-config-filename))
+        (out-buffer (generate-new-buffer "*ent-out*" )))
+    (setq ent-tasks ())
+    (ent-add-default-tasks)
+    (switch-to-buffer out-buffer)
     (load initfile)
     (if (not taskname)
         (setq taskname (ido-completing-read  "Command: "
-                                             (mapcar 'ent-get-name (seq-filter 'symbolp ent-tasks))
+                                             (plist-keys ent-tasks)
                                              nil t)))
-    (ent-batch dir (ent-get-task taskname) ent-tasks initfile)))
+    (run-task (plist-get ent-tasks taskname) ent-tasks dir out-buffer)
+    (compilation-mode)))
 
 ;;;###autoload
 (defun ent-visit-build-file ()

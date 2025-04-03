@@ -4,3 +4,4 @@
 (eldev-use-package-archive 'gnu)
 
 (eldev-use-plugin 'autoloads)
+(eldev-use-plugin 'maintainer)
