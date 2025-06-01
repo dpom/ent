@@ -285,8 +285,9 @@ You could specify the TASKNAME."
                                              (ent-plist-keys ent-tasks)
                                              nil t)))
     (ent-run-task (plist-get ent-tasks taskname) ent-tasks dir out-buffer)
-    (ansi-color-apply-on-region (point-min) (point-max))
-    (compilation-mode)))
+    (let ((inhibit-read-only t))
+      (ansi-color-apply-on-region (point-min) (point-max))
+      (compilation-mode))))
 
 ;;;###autoload
 (defun ent-visit-build-file ()
