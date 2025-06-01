@@ -19,9 +19,9 @@
 
 (task 'task '() "test task function" '(lambda (&optional x) "ls -la" ))
 
-(task 'init  '() "initialize test" '(lambda (&optional x) (concat  "mkdir tmp"
-                                                                   "; touch test1.tex"
-                                                                   "; touch test2~")))
+(task 'init  '() "initialize test" (concat  "mkdir tmp"
+                                            "; touch test1.tex"
+                                            "; touch test2~"))
 
 
 

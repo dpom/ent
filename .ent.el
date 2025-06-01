@@ -12,14 +12,17 @@
 
 ;; tasks
 
-(task :eldev-clean '(:clean) "clean tmp files" "eldev clean")
+(task :eldev-clean '(:clean) "clean tmp files" "eldev --color=never clean")
 
-(task :lint '(:eldev-clean) "emacs lisp lint" "eldev lint")
+(task :lint '(:eldev-clean) "emacs lisp lint" "eldev --color=never lint")
 
-(task :build '() "build package" "eldev build")
+(task :build '() "build package" "eldev --color=never build")
 
-(task :test '() "run tests" "eldev test")
+(task :test '() "run tests" "eldev --color=never test")
 
+(task :du '() "check async" "du -h /")
+
+(task :exec-dirs '() "check execpath" (lambda (x) (insert (format "current-dir: %s\nexec-path: %s\n" x exec-path))))
 
 (provide '.ent)
 ;;; .ent.el ends here

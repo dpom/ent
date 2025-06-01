@@ -12,18 +12,15 @@
 
 (load-file "../ent-elisp-tasks.el")
 
-(ent-tasks-init)
-(ent-elisp-tasks-init)
+(ent-add-elisp-tasks)
 
 ;; tasks
 
+(task :init  '() "initialize test" "touch test1.tex; touch test2~")
 
-(task 'init  '() "initialize test" '(lambda (&optional x) (concat  "mkdir tmp"
-                                                                   "; touch test1.tex"
-                                                                   "; touch test2~")))
+(task :list '() "list current directory" "ls -la" )
 
-
-(task 'task '(init) "test task function" '(lambda (&optional x) "ls -la" ))
+(task :test '(:env :init :list :clean :list :cleadir) "test tasks" (lambda (x) (insert (format "Test the ent project"))))
 
 (provide '.ent)
 ;;; .ent.el ends here

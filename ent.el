@@ -3,10 +3,10 @@
 ;; Copyright (C) 2019, 2025  Dan Pomohaci
 
 ;; Author: Dan Pomohaci
-;; Version: 2.0
+;; Version: 2.1
 ;; Homepage: https://gitlab.com/dpom/ent
 ;; Keywords: elisp tools maint
-;; Package-Requires: ((emacs "25.1") cl-lib  (seq))
+;; Package-Requires: ((emacs "26.1") cl-lib  (seq))
 
 ;; This file is not part of GNU Emacs
 
@@ -33,6 +33,7 @@
 (require 'dired)
 (require 'bytecomp)
 (require 'cl-lib)
+(require 'ansi-color)
 
 ;; Custom variables
 
@@ -76,7 +77,7 @@
 
 (defcustom ent-default-exclude-dir-list (list "*.git" "*target")
   "The list of directories to be excluded in file search."
-  :type '(list)
+  :type '(list string)
   :group 'ent)
 
 ;; Global variables
@@ -133,10 +134,10 @@ The SRC and DEST must be absolute path.")
 
 (defun ent-rcopy (src dest regexp)
   "Recursive copy REGEXP files from SRC to DEST."
-  (ent-walk src regexp '(lambda (x)
-                          (message "copy %s to %s" x dest)
-                          (make-directory dest t)
-                          (copy-file x dest t))))
+  (ent-walk src regexp #'(lambda (x)
+                           (message "copy %s to %s" x dest)
+                           (make-directory dest t)
+                           (copy-file x dest t))))
 
 (defun ent-mcopy ()
   "Multiple recursive copy using ent-mcopy-list."
@@ -148,46 +149,49 @@ The SRC and DEST must be absolute path.")
 
 (cl-defstruct task name doc deps action)
 
-(defun plist-keys (plist)
+(defun ent-plist-keys (plist)
   "Get just the keys of a PLIST."
   (cl-loop for key in plist by #'cddr collecting key))
 
-(defun plist-values (plist)
+(defun ent-plist-values (plist)
   "Get just the values of a PLIST."
-  (cl-loop for value in (rest plist) by #'cddr collecting value))
+  (cl-loop for (_prop val) on plist by #'cddr collecting val))
 
-(defun symbol-to-string (symbol)
+(defun ent-symbol-to-string (symbol)
   "Convert a SYMBOL in string."
   (format "%s" symbol))
 
+(defun ent-time-iso-format ()
+  "Get date time in ISO format."
+  (format-time-string "%FT%T.%N"))
 
 (defun task (name deps doc &optional action)
   "Create a task and add it to the tasks."
   (let ((tsk (make-task :name name
                         :doc doc
-                        :deps (mapcar 'symbol-to-string deps)
+                        :deps (mapcar 'ent-symbol-to-string deps)
                         :action action)))
-    (setq ent-tasks (plist-put ent-tasks (symbol-to-string name) tsk))))
+    (setq ent-tasks (plist-put ent-tasks (ent-symbol-to-string name) tsk))))
 
 (defun ent-find-project-file ()
   "Return the project file absolute path of the current project."
   (expand-file-name ent-project-config-filename (locate-dominating-file default-directory ent-project-config-filename)))
 
-(defun run-task (tsk tasks dir out-buffer)
+(defun ent-run-task (tsk tasks dir out-buffer)
   "Run a TSK from TASKS in DIR, results displayed in OUT-BUFFER."
-  (insert (format "Start %s\n" (task-name tsk)))
+  (insert (format "Start %s (%s)\n" (task-name tsk) (ent-time-iso-format)))
   (when (task-deps tsk)
     (dolist (dt (task-deps tsk))
-      (funcall #'run-task (plist-get tasks (symbol-to-string dt)) tasks dir out-buffer)))
+      (funcall #'ent-run-task (plist-get tasks (ent-symbol-to-string dt)) tasks dir out-buffer)))
   (when-let* ((action (task-action tsk)))
     (if (functionp action)
         (funcall action dir)
       (if (stringp action)
           (progn
-            (shell-cd dir)
-            (shell-command action out-buffer out-buffer))
+            (start-process-shell-command "ent" out-buffer action))
         (insert "no action\n"))))
-  (insert (format "End %s\n" (task-name tsk))))
+  (insert (format "End %s (%s)\n\n" (task-name tsk) (ent-time-iso-format))))
+
 
 ;;;; Global tasks
 
@@ -197,12 +201,12 @@ The SRC and DEST must be absolute path.")
   (let ((acc 0)
         (regexp (or ent-clean-regexp ent-clean-default-regexp)))
     (displaying-byte-compile-warnings
-     (insert (format "clean: %s from %s\n" regexp dir))
+     (insert (format "Clean: %s from %s\n" regexp dir))
      (ent-walk dir regexp #'(lambda (x)
                               (delete-file (expand-file-name x))
                               (setq acc (+ acc 1))
                               (insert (format "clean: %s deleted\n" (expand-file-name x)))))
-     (insert (format "clean: command terminated %d files removed\n" acc))
+     (insert (format "Clean: command terminated %d files removed\n" acc))
      acc)))
 
 
@@ -212,53 +216,45 @@ The SRC and DEST must be absolute path.")
   (let ((acc 0)
         (regexp (or ent-dirclean-regexp ent-dirclean-default-regexp)))
     (displaying-byte-compile-warnings
-     (insert (format "\nDirClean: %s from %s" regexp dir))
+     (insert (format "DirClean: %s from %s\n" regexp dir))
      (ent-dir-walk dir regexp #'(lambda (x)
                                   (dired-delete-file (expand-file-name x) 'always)
                                   (setq acc (+ acc 1))
-                                  (insert (format  "%s deleted" (expand-file-name x)))))
-     (insert (format  "DirClean: command terminated %d directories removed" acc))
+                                  (insert (format  "%s deleted\n" (expand-file-name x)))))
+     (insert (format  "DirClean: %d directories removed\n" acc))
      acc)))
 
 ;; help
-(defun ent-help-action (&optional arg)
-  "Display tasks description.
-ARG is only for compatibility with the other functions."
+(defun ent-help-action (&optional _arg)
+  "Display tasks description (ARG is only for compatibility)."
   (displaying-byte-compile-warnings
-   (insert (format  "\nHelp:"))
-   (dolist (x (ent--values ent-tasks))
-     (insert (format  "%s\t- %s" (task-name x) (task-doc x))))))
+   (dolist (task (ent-plist-values ent-tasks))
+     (insert (format  "%-10s\t- %s\n" (task-name task) (task-doc task))))))
 
 ;; env
 (defun ent-env-action (&optional arg)
-  "Display environment variables.
-ARG is only for compatibility with the other functions."
+  "Display environment variables (ARG is only for compatibility)."
   (displaying-byte-compile-warnings
-   (insert (format  "\nEnv:"))
-   (insert (format  "load-path: %s" load-path))
-   (insert (format  "arg: %s" arg))
-   (insert (format  "project name: %s" ent-project-name))
-   (insert (format  "project dir: %s" ent-project-home))
-   (insert (format  "project tasks: %s" (plist-keys ent-tasks)))))
+   (insert (format  "\nEnv:\n"))
+   (insert (format  "- load-path: %s\n" load-path))
+   (insert (format  "- arg: %s\n" arg))
+   (insert (format  "- project name: %s\n" ent-project-name))
+   (insert (format  "- project dir: %s\n" ent-project-home))
+   (insert (format  "- project tasks: %s\n" (ent-plist-keys ent-tasks)))))
 
 ;; elispbuild
 (defun ent-elispbuild-action (dir)
-  "Build an elisp project from DIR.
-ARG is only for compatibility with the other fs functions."
+  "Build an elisp project from DIR (ARG is only for compatibility)."
   (displaying-byte-compile-warnings
    (insert (format  "Project %s\n" ent-project-name))
-   (insert (format  "Build: compile el files found in %s" dir))
-   (byte-recompile-directory dir 0)
-   (insert (format  "\nBuild: bin-compile command terminated"))))
+   (insert (format  "Build: compile el files found in %s\n" dir))
+   (byte-recompile-directory dir 0)))
 
 ;; mcopy
-(defun ent-mcopy-action  (&optional regexp)
-  "Multiple copy using REGEXP or ent-mcopy-list recursively."
-  (let ((dir default-directory))
-    (displaying-byte-compile-warnings
-     (insert (format  "\nMCopy"))
-     (ent-mcopy)
-     (insert (format  "\nMCcopy: command terminated")))))
+(defun ent-mcopy-action  (&optional _arg)
+  "Multiple copy using ent-mcopy-list recursively."
+  (displaying-byte-compile-warnings
+   (ent-mcopy)))
 
 ;;;; Commands
 
@@ -286,9 +282,9 @@ You could specify the TASKNAME."
     (load initfile)
     (if (not taskname)
         (setq taskname (ido-completing-read  "Command: "
-                                             (plist-keys ent-tasks)
+                                             (ent-plist-keys ent-tasks)
                                              nil t)))
-    (run-task (plist-get ent-tasks taskname) ent-tasks dir out-buffer)
+    (ent-run-task (plist-get ent-tasks taskname) ent-tasks dir out-buffer)
     (ansi-color-apply-on-region (point-min) (point-max))
     (compilation-mode)))
 

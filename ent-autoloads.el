@@ -22,33 +22,14 @@ Visit the ent project file." t)
 Visit the project specific config file, ent-project-config-filename." t)
 (autoload 'ent-find-file "ent" "\
 Find a file from the project." t)
-(defvar ent-prefix-map (let ((map (make-sparse-keymap))) (define-key map "x" 'ent) (define-key map "c" 'ent-visit-config-file) (define-key map "b" 'ent-visit-build-file) (define-key map "f" 'ent-find-file) map))
+(defvar ent-prefix-map (let ((map (make-sparse-keymap))) (define-key map "x" 'ent-run) (define-key map "c" 'ent-visit-config-file) (define-key map "b" 'ent-visit-build-file) (define-key map "f" 'ent-find-file) map))
 (fset 'ent-prefix-map ent-prefix-map)
-(register-definition-prefixes "ent" '("ent-" "plist-" "run-task" "symbol-to-string" "task"))
+(register-definition-prefixes "ent" '("ent-" "task"))
 
 
 ;;; Generated autoloads from ent-elisp-tasks.el
 
 (register-definition-prefixes "ent-elisp-tasks" '("ent-"))
-
-
-;;; Generated autoloads from flycheck_ent.el
-
-(autoload 'ent-run "flycheck_ent" "\
-Main entry point for ent.
-You could specify the TASKNAME.
-
-(fn &optional TASKNAME)" t)
-(autoload 'ent-visit-build-file "flycheck_ent" "\
-Visit the ent project file." t)
-(autoload 'ent-visit-config-file "flycheck_ent" "\
-Visit the project specific config file, ent-project-config-filename." t)
-(autoload 'ent-find-file "flycheck_ent" "\
-Find a file from the project." t)
-(defvar ent-prefix-map (let ((map (make-sparse-keymap))) (define-key map "x" 'ent) (define-key map "c" 'ent-visit-config-file) (define-key map "b" 'ent-visit-build-file) (define-key map "f" 'ent-find-file) map))
-(fset 'ent-prefix-map ent-prefix-map)
-(register-definition-prefixes "flycheck_ent" '("ent-" "plist-" "run-task" "symbol-to-string" "task"))
-
 
 ;;; End of scraped data
 
