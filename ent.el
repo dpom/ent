@@ -3,7 +3,7 @@
 ;; Copyright (C) 2019, 2025  Dan Pomohaci
 
 ;; Author: Dan Pomohaci
-;; Version: 2.1
+;; Version: 2.2
 ;; Homepage: https://gitlab.com/dpom/ent
 ;; Keywords: elisp tools maint
 ;; Package-Requires: ((emacs "26.1") cl-lib  (seq))
@@ -34,6 +34,7 @@
 (require 'bytecomp)
 (require 'cl-lib)
 (require 'ansi-color)
+(require 'shell)
 
 ;; Custom variables
 
@@ -188,6 +189,7 @@ The SRC and DEST must be absolute path.")
         (funcall action dir)
       (if (stringp action)
           (progn
+            (shell-cd dir)
             (start-process-shell-command "ent" out-buffer action))
         (insert "no action\n"))))
   (insert (format "End %s (%s)\n\n" (task-name tsk) (ent-time-iso-format))))
@@ -279,15 +281,16 @@ You could specify the TASKNAME."
     (setq ent-tasks ())
     (ent-add-default-tasks)
     (switch-to-buffer out-buffer)
-    (load initfile)
-    (if (not taskname)
-        (setq taskname (ido-completing-read  "Command: "
-                                             (ent-plist-keys ent-tasks)
-                                             nil t)))
-    (ent-run-task (plist-get ent-tasks taskname) ent-tasks dir out-buffer)
+    (compilation-mode)
     (let ((inhibit-read-only t))
-      (ansi-color-apply-on-region (point-min) (point-max))
-      (compilation-mode))))
+      (shell-cd dir)
+      (load initfile)
+      (if (not taskname)
+          (setq taskname (ido-completing-read  "Command: "
+                                               (ent-plist-keys ent-tasks)
+                                               nil t)))
+      (ent-run-task (plist-get ent-tasks taskname) ent-tasks dir out-buffer)
+      (ansi-color-apply-on-region (point-min) (point-max)))))
 
 ;;;###autoload
 (defun ent-visit-build-file ()
