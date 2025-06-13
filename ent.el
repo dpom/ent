@@ -167,7 +167,11 @@ The SRC and DEST must be absolute path.")
   (format-time-string "%FT%T.%N"))
 
 (defun task (name deps doc &optional action)
-  "Create a task and add it to the tasks."
+  "Create a task and add it to the tasks.
+NAME is the name of the task
+DEPS a list of tasks
+DOC task description
+ACTION what task do"
   (let ((tsk (make-task :name name
                         :doc doc
                         :deps (mapcar 'ent-symbol-to-string deps)
@@ -178,21 +182,40 @@ The SRC and DEST must be absolute path.")
   "Return the project file absolute path of the current project."
   (expand-file-name ent-project-config-filename (locate-dominating-file default-directory ent-project-config-filename)))
 
-(defun ent-run-task (tsk tasks dir out-buffer)
-  "Run a TSK from TASKS in DIR, results displayed in OUT-BUFFER."
-  (insert (format "Start %s (%s)\n" (task-name tsk) (ent-time-iso-format)))
-  (when (task-deps tsk)
-    (dolist (dt (task-deps tsk))
-      (funcall #'ent-run-task (plist-get tasks (ent-symbol-to-string dt)) tasks dir out-buffer)))
-  (when-let* ((action (task-action tsk)))
-    (if (functionp action)
-        (funcall action dir)
-      (if (stringp action)
+(defun ent-process-sentinel (out-buffer process event)
+  "Function called when PROCESS change state; display a message in OUT-BUFFER based on EVENT."
+  (when (string= event "finished\n")
+    (switch-to-buffer out-buffer)
+    (let ((inhibit-read-only t))
+      (insert (format "End %s (%s)\n\n" (process-name process) (ent-time-iso-format)))
+      )))
+
+
+(defun ent-run-task (tsk tasks dir out-buffer asyncp)
+  "Run a TSK from TASKS in DIR, results displayed in OUT-BUFFER.
+
+  If ASYNCP is true the task is run asyncronous."
+  (let ((nume (symbol-name (task-name tsk))))
+    (insert (format "Start %s (%s) (%s)\n" nume asyncp (ent-time-iso-format)))
+    (when (task-deps tsk)
+      (dolist (dt (task-deps tsk))
+        (funcall #'ent-run-task (plist-get tasks (ent-symbol-to-string dt)) tasks dir out-buffer nil)))
+    (when-let* ((action (task-action tsk)))
+      (if (functionp action)
           (progn
-            (shell-cd dir)
-            (start-process-shell-command "ent" out-buffer action))
-        (insert "no action\n"))))
-  (insert (format "End %s (%s)\n\n" (task-name tsk) (ent-time-iso-format))))
+            (funcall action dir)
+            (insert (format "End %s (%s)\n" nume (ent-time-iso-format))))
+        (if (stringp action)
+            (progn
+              (shell-cd dir)
+              (if asyncp
+                  (let ((sentinel (lambda (process event) (ent-process-sentinel out-buffer process event)))
+                        (process (start-process-shell-command nume out-buffer action)))
+                    (set-process-sentinel process sentinel))
+                (progn
+                  (shell-command action out-buffer out-buffer)
+                  (insert (format "End %s (%s)\n\n" nume (ent-time-iso-format))))))
+          (insert "no action\n"))))))
 
 
 ;;;; Global tasks
@@ -262,12 +285,12 @@ The SRC and DEST must be absolute path.")
 
 (defun ent-add-default-tasks ()
   "Add default tasks."
-  (task :clean ()  (documentation 'ent-clean-action) 'ent-clean-action)
-  (task :dirclean ()  (documentation 'ent-dirclean-action) 'ent-dirclean-action)
-  (task :help ()  (documentation 'ent-help-action) 'ent-help-action)
-  (task :env ()  (documentation 'ent-env-action) 'ent-env-action)
-  (task :elispbuild () (documentation 'ent-elispbuild-action) 'ent-elispbuild-action)
-  (task :mcopy ()  (documentation 'ent-mcopy-action) 'ent-mcopy-action))
+  (task :clean '()  (documentation 'ent-clean-action) 'ent-clean-action)
+  (task :dirclean '()  (documentation 'ent-dirclean-action) 'ent-dirclean-action)
+  (task :help '()  (documentation 'ent-help-action) 'ent-help-action)
+  (task :env '()  (documentation 'ent-env-action) 'ent-env-action)
+  (task :elispbuild '() (documentation 'ent-elispbuild-action) 'ent-elispbuild-action)
+  (task :mcopy '()  (documentation 'ent-mcopy-action) 'ent-mcopy-action))
 
 
 ;;;###autoload
@@ -289,7 +312,7 @@ You could specify the TASKNAME."
           (setq taskname (ido-completing-read  "Command: "
                                                (ent-plist-keys ent-tasks)
                                                nil t)))
-      (ent-run-task (plist-get ent-tasks taskname) ent-tasks dir out-buffer)
+      (ent-run-task (plist-get ent-tasks taskname) ent-tasks dir out-buffer t)
       (ansi-color-apply-on-region (point-min) (point-max)))))
 
 ;;;###autoload

@@ -20,7 +20,7 @@
 
 (task :list '() "list current directory" "ls -la" )
 
-(task :test '(:env :init :list :clean :list :cleadir) "test tasks" (lambda (x) (insert (format "Test the ent project"))))
+(task :test '(:env :init :list :clean :list :dirclean) "test tasks" (lambda (x) (insert (format "Test the ent project\n"))))
 
 (provide '.ent)
 ;;; .ent.el ends here
