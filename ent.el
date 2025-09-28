@@ -35,15 +35,14 @@
 (require 'cl-lib)
 (require 'ansi-color)
 (require 'shell)
+(require 'f)
 
 ;; Custom variables
 
 (defgroup ent nil
   "Emacs build tool."
-  :version "2.0"
-  :group 'tools
-  :group '
-  processes)
+  :package-version "2.2"
+  :group 'tools)
 
 (defcustom ent-emacs-exec "emacs"
   "Emacs executable."
@@ -116,22 +115,38 @@ The SRC and DEST must be absolute path.")
   "Expand a local DIR name using his PATH."
   (file-name-as-directory (expand-file-name dir path)))
 
-(defun ent-walk (dir regexp function)
-  "Walk DIR recursively and execute FUNCTION for REGEXP match files."
-  (cond
-   ((file-regular-p dir) (and (string-match regexp dir)
-                              (funcall function dir)))
-   ((file-directory-p dir) (mapc #'(lambda (x)
-                                     (ent-walk x regexp function))
-                                 (directory-files (expand-file-name dir)
-                                                  t "[^.]$")))))
+(cl-defun ent-walk (root regexp fn)
+  "Recursively walk ROOT and invoke FN on each *file* that matches REGEXP.
+ROOT may be a file or a directory.  FN is a function that receives the
+file path as its sole argument.
 
-(defun ent-dir-walk (dir regexp function)
-  "Walk DIR recursively and execute FUNCTION for REGEXP match directories."
-  (if (file-directory-p dir)
-      (if (string-match regexp dir) (funcall function dir)
-        (mapc #'(lambda (x) (ent-dir-walk x regexp function))
-              (directory-files (expand-file-name dir) t "[^.]$")))))
+If ROOT is a directory, the traversal is depth‑first: child directories are
+walked first, then the file itself is processed."
+  (cond
+   ;; 1️⃣  ROOT is a directory – recurse into it
+   ((file-directory-p root)
+    (cl-loop for child in (directory-files root t "[^.]")
+             do (ent-walk child regexp fn)))
+
+   ;; 2️⃣  ROOT is a file – apply FN only if it matches the regexp
+   ((and (file-regular-p root) (string-match regexp root))
+    (funcall fn root))))
+
+(cl-defun ent-dir-walk (root pattern callback)
+  "Recursively walk ROOT and invoke CALLBACK on each dir that matches PATTERN.
+
+CALLBACK is a function that receives the directory path as its sole argument.
+
+The traversal is depth‑first: child directories are visited *before*
+the directory itself.  This guarantees that a callback that removes a
+directory never runs on a child that has already been deleted."
+  (when (file-directory-p root)
+    ;; Recurse into all children first
+    (cl-loop for child in (directory-files root t "[^.]")
+             do (ent-dir-walk child pattern callback))
+    ;; Now process the root itself, if it matches
+    (when (string-match pattern root)
+      (funcall callback root))))
 
 (defun ent-rcopy (src dest regexp)
   "Recursive copy REGEXP files from SRC to DEST."
@@ -223,16 +238,16 @@ ACTION what task do"
 ;; clean
 (defun ent-clean-action (dir)
   "Remove all files matching ent-clean-regexp from DIR recursively."
-  (let ((acc 0)
+  (let ((removed 0)
         (regexp (or ent-clean-regexp ent-clean-default-regexp)))
     (displaying-byte-compile-warnings
      (insert (format "Clean: %s from %s\n" regexp dir))
      (ent-walk dir regexp #'(lambda (x)
                               (delete-file (expand-file-name x))
-                              (setq acc (+ acc 1))
+                              (cl-incf removed)
                               (insert (format "clean: %s deleted\n" (expand-file-name x)))))
-     (insert (format "Clean: command terminated %d files removed\n" acc))
-     acc)))
+     (insert (format "Clean: command terminated %d files removed\n" removed))
+     removed)))
 
 
 ;; dirclean
