@@ -6,7 +6,7 @@
 ;; Version: 2.2
 ;; Homepage: https://gitlab.com/dpom/ent
 ;; Keywords: elisp tools maint
-;; Package-Requires: ((emacs "26.1") cl-lib  (seq))
+;; Package-Requires: ((emacs "26.1") cl-lib f (seq))
 
 ;; This file is not part of GNU Emacs
 
@@ -35,7 +35,6 @@
 (require 'cl-lib)
 (require 'ansi-color)
 (require 'shell)
-(require 'f)
 
 ;; Custom variables
 
