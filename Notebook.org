@@ -185,3 +185,67 @@ vector
      (message "clean: command terminated %d files removed" acc)
      acc)))
   #+end_src
+
+* 2025-09-28
+
+- refactor functiile ent-walk si ent-walk-
+- corectie run asincron:
+  #+begin_src emacs-lisp
+  In emacs-lisp how to run a callback function when the shell command started with a start-process function exit.
+
+### How to run a callback when a `start‑process` finishes
+
+`start‑process` returns a `process` object.  
+You attach a **sentinel** (or a filter) to that object and Emacs calls the
+sentinel every time the process status changes.  
+When the status becomes `exit` you can run whatever code you want.
+
+```elisp
+(defun my-run-cmd-with-callback (cmd args &rest callback)
+  "Run CMD with ARGS in a separate process.
+When the process exits the last element of CALLBACK is run."
+  (let ((proc (start-process
+                "my‑proc"          ; process name
+                "*my‑proc-output*" ; buffer for output
+                cmd                 ; program
+                args...)))          ; arguments
+    ;; Attach a sentinel
+    (set-process-sentinel
+     proc
+     (lambda (process event)
+       ;; Event string looks like \"finished\n\" or \"signal 15\n\" …
+       (when (string-match-p "finished" event)
+         ;; Process has terminated – run the callback
+         (apply #'funcall callback
+                (list process)))))))
+```
+
+#### Usage
+
+```elisp
+(my-run-cmd-with-callback
+ "bash" "-c" "echo hello; sleep 2; echo bye"
+ (lambda (process)
+   (message "Process %s finished (exit code %d)"
+            (process-name process)
+            (process-exit-status process))))
+```
+
+The lambda receives the finished process as its sole argument; you can
+query its exit status, read its output buffer, etc.
+
+---
+
+### Quick notes
+
+| Term | What it does | Typical place to set |
+|------|--------------|----------------------|
+| **sentinel** | Called on status changes (exit, signal, output). | `set-process-sentinel` (after `start-process`) or `:sentinel` argument in `make-process`. |
+| **filter** | Called for every chunk of output. | `set-process-filter` (if you only care about output). |
+
+Using a sentinel is the idiomatic way to react when the process *exits*,
+as shown above.
+
+
+
+  #+end_src

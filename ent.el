@@ -199,7 +199,7 @@ ACTION what task do"
 
 (defun ent-process-sentinel (out-buffer process event)
   "Function called when PROCESS change state; display a message in OUT-BUFFER based on EVENT."
-  (when (string= event "finished\n")
+  (when (string-match-p "finished" event)
     (switch-to-buffer out-buffer)
     (let ((inhibit-read-only t))
       (insert (format "End %s (%s)\n\n" (process-name process) (ent-time-iso-format)))
@@ -232,17 +232,15 @@ ACTION what task do"
                   (insert (format "End %s (%s)\n\n" nume (ent-time-iso-format))))))
           (insert "no action\n"))))))
 
-
 ;;;; Global tasks
 
 ;; clean
-(defun ent-clean-action (dir)
-  "Remove all files matching ent-clean-regexp from DIR recursively."
-  (let ((removed 0)
-        (regexp (or ent-clean-regexp ent-clean-default-regexp)))
+(defun ent-clean-action (dir pattern)
+  "Remove all files matching PATTERN from DIR recursively."
+  (let ((removed 0))
     (displaying-byte-compile-warnings
-     (insert (format "Clean: %s from %s\n" regexp dir))
-     (ent-walk dir regexp #'(lambda (x)
+     (insert (format "Clean: %s from %s\n" pattern dir))
+     (ent-walk dir pattern #'(lambda (x)
                               (delete-file (expand-file-name x))
                               (cl-incf removed)
                               (insert (format "clean: %s deleted\n" (expand-file-name x)))))
@@ -251,18 +249,18 @@ ACTION what task do"
 
 
 ;; dirclean
-(defun ent-dirclean-action (dir)
-  "Remove all directories ent-dirclean-regexp from DIR recursively."
-  (let ((acc 0)
+(defun ent-dirclean-action (dir pattern)
+  "Remove all directories matching PATTERN from DIR recursively."
+  (let ((removed 0)
         (regexp (or ent-dirclean-regexp ent-dirclean-default-regexp)))
     (displaying-byte-compile-warnings
      (insert (format "DirClean: %s from %s\n" regexp dir))
-     (ent-dir-walk dir regexp #'(lambda (x)
-                                  (dired-delete-file (expand-file-name x) 'always)
-                                  (setq acc (+ acc 1))
-                                  (insert (format  "%s deleted\n" (expand-file-name x)))))
-     (insert (format  "DirClean: %d directories removed\n" acc))
-     acc)))
+     (ent-dir-walk dir pattern #'(lambda (x)
+                                   (dired-delete-file (expand-file-name x) 'always)
+                                   (cl-incf removed)
+                                   (insert (format  "%s deleted\n" (expand-file-name x)))))
+     (insert (format  "DirClean: %d directories removed\n" removed))
+     removed)))
 
 ;; help
 (defun ent-help-action (&optional _arg)
@@ -300,8 +298,8 @@ ACTION what task do"
 
 (defun ent-add-default-tasks ()
   "Add default tasks."
-  (task :clean '()  (documentation 'ent-clean-action) 'ent-clean-action)
-  (task :dirclean '()  (documentation 'ent-dirclean-action) 'ent-dirclean-action)
+  (task :clean '()  (documentation 'ent-clean-action) (lambda (dir) (ent-clean-action dir (or ent-clean-regexp ent-clean-default-regexp))))
+  (task :dirclean '()  (documentation 'ent-dirclean-action) (lambda (dir) (ent-dirclean-action dir (or ent-dirclean-regexp ent-dirclean-default-regexp))))
   (task :help '()  (documentation 'ent-help-action) 'ent-help-action)
   (task :env '()  (documentation 'ent-env-action) 'ent-env-action)
   (task :elispbuild '() (documentation 'ent-elispbuild-action) 'ent-elispbuild-action)

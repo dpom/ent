@@ -18,7 +18,7 @@
 
 (task :build '() "build package" "eldev --color=never build")
 
-(task :test '() "run tests" "eldev --color=never test")
+(task :test '() "run tests" "emacs -batch -l ert -l test-ent.el -f ert-run-tests-batch-and-exit")
 
 (task :du '() "check async" "du -h /")
 

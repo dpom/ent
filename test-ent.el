@@ -93,7 +93,7 @@ Return a list of all created paths (directories *and* files)."
     (unwind-protect
         (progn
           ;; Run the clean action
-          (let ((removed (ent-clean-action tmp)))
+          (let ((removed (ent-clean-action tmp "\\.el$")))
             (should (= removed (length to-remove)))
             ;; Verify that the files are really gone
             (dolist (f to-remove)
