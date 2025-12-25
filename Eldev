@@ -1,7 +1,0 @@
-; -*- mode: emacs-lisp; lexical-binding: t -*-
-
-;; Autodetermined by `eldev init'.
-(eldev-use-package-archive 'gnu)
-
-(eldev-use-plugin 'autoloads)
-(eldev-use-plugin 'maintainer)

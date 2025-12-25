@@ -1,0 +1,45 @@
+#+title: ent
+#+subtitle: for version {{{package-version}}}
+#+author: {{{package-author}}}
+#+email: {{{package-email}}}
+#+date: 2022-{{{year}}}
+#+property: header-args :eval no`
+#+options: broken-links:warn \n:nil ::t |:t ^:nil -:t f:t *:t <:t e:t ':t
+#+options: d:nil todo:nil pri:nil tags:not-in-toc stat:nil
+#+language: en
+#+export_file_name: ent.texi
+#+texinfo_dir_category: Emacs
+#+texinfo_dir_title: ent: (ent)
+#+texinfo_dir_desc: Create, distribute, and maintain Emacs Lisp packages
+#+macro: package-version (eval (if (require 'erk nil t) (erk-package-version) "0.1.0"))
+#+macro: package-author (eval (if (require 'erk nil t) (erk-package-author) "Dan Pomohaci"))
+#+macro: package-email (eval (if (require 'erk nil t) (erk-package-email "dan.pomohaci@gmail.com")))
+#+macro: year (eval (format-time-string "%Y"))
+#+texinfo_header: @comment !!!THIS FILE HAS BEEN GENERATED!!! Edit manual.org instead!
+
+* Welcome
+
+This is a simple org document used to generate an info manual and content for
+the README.
+
+* Overview
+
+=ent.el= is a *tiny build‑automation* framework written in pure Emacs‑Lisp.  
+Its goal is to discover a /project/ (identified by a dedicated =ent‑project‑config‑filename= file), load the project‑specific build file, create a set of *tasks* (default and user‑defined) and run a selected task while reporting the output in a /compilation/ buffer.
+
+* About this Manual
+
+  To see more examples of writing an org document that exports to texinfo or
+  markdown, see the longer examples in Elisp Repo Kit, which is available in its
+  info manual as well.
+
+* Licensing
+:PROPERTIES:
+:COPYING: t
+:END:
+
+#+include: "../COPYING"
+
+# Local Variables:
+# after-save-hook: (lambda () (when (require 'erk nil t) (erk-export-docs)))
+# End:
