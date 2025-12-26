@@ -1,0 +1,31 @@
+;;; .ent3.el --- local ent config file -*- lexical-binding: t; -*-
+
+
+;;; Commentary:
+;; Test file
+
+;;; Code:
+
+(setq ent3-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
+(setq ent3-project-name "ent-test")
+
+
+(task "test1"
+      :doc "Test shell"
+      :shell "ls -la /nix/store")
+
+(task "test2"
+      :doc "Test elisp"
+      :elisp (lambda ()
+               (let  ((cucu (completing-read "Cucu: " '("abc" "def") nil t)))
+                 (message "Cucu este %s" cucu)
+                 )))
+
+(task "test3"
+      :doc "Test deps"
+      :deps "test1 test2")
+
+
+
+(provide '.ent3)
+;;; .ent3.el ends here
