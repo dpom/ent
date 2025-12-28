@@ -94,7 +94,7 @@ The message is written as a single line terminated by a newline."
 
 ;;; Task registration --------------------------------------------------------
 
-(cl-defstruct ent-task name doc deps shell elisp)
+(cl-defstruct ent-task name doc deps action)
 
 (defun ent--ensure-task-exists (name)
   "Ensure that a task named NAME is registered.
@@ -102,13 +102,12 @@ If not, signal an error."
   (unless (gethash name ent--tasks)
     (error "Task `%s' is not defined" name)))
 
-(cl-defun task (name &optional &key doc deps elisp shell)
-  "Create a ENT-TASK with NAME, optional DOC, DEPS, SHELL, and ELISP."
+(cl-defun task (name &optional &key doc deps action)
+  "Create a ENT-TASK with NAME, optional DOC, DEPS, and ACTION."
   (puthash name (make-ent-task :name  name
                                 :doc   doc
                                 :deps  deps
-                                :shell shell
-                                :elisp elisp)
+                                :action action)
            ent--tasks))
 
 ;;; Process helpers ---------------------------------------------------------
@@ -147,7 +146,7 @@ Write output/error to `ent-log-buffer'."
   "After COMMAND exited, call next task from TASK-LIST if PROC exit was ok."
   (let ((exit-status (process-exit-status proc)))
     (ent-log "[%s] Command: %s exit with %d" (ent-time-iso-format) command exit-status)
-    (ent--start-next-task (if (eql exit-status 0) task-list '()))))
+    (ent--start-next-task (if (zerop exit-status) task-list '()))))
 
 ;; --------------------------------------------------------------------------
 ;; Task execution
@@ -158,12 +157,13 @@ Write output/error to `ent-log-buffer'."
   (if (null task-list)
       (ent-log "[%s] Done" (ent-time-iso-format))
     (let* ((task-name (pop task-list))
-           (task (gethash task-name ent--tasks)))
+           (task (gethash task-name ent--tasks))
+           (action (ent-task-action task)))
       (cond
-       ((ent-task-elisp task) (progn
-                                (funcall (ent-task-elisp task))
+       ((functionp action) (progn
+                                (funcall action)
                                 (ent--start-next-task task-list)))
-        ((ent-task-shell task) (ent-run-shell-command (ent-task-shell task) task-list))
+        ((stringp action) (ent-run-shell-command action task-list))
         ('t (ent--start-next-task task-list))))))
 
 

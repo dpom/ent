@@ -12,11 +12,11 @@
 
 (task "test1"
       :doc "Test shell"
-      :shell "ls -la /nix/store")
+      :action "ls -la /nix/store")
 
 (task "test2"
       :doc "Test elisp"
-      :elisp (lambda ()
+      :action (lambda ()
                (let  ((cucu (completing-read "Cucu: " '("abc" "def") nil t)))
                  (message "Cucu este %s" cucu)
                  )))
