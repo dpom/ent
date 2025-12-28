@@ -1,4 +1,4 @@
-;;; .ent3.el --- local ent config file -*- lexical-binding: t; -*-
+;;; .ent.el --- local ent config file -*- lexical-binding: t; -*-
 
 
 ;;; Commentary:
@@ -6,8 +6,8 @@
 
 ;;; Code:
 
-(setq ent3-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
-(setq ent3-project-name "ent-test")
+(setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
+(setq ent-project-name "ent-test")
 
 
 (task "test1"
@@ -27,5 +27,5 @@
 
 
 
-(provide '.ent3)
-;;; .ent3.el ends here
+(provide '.ent)
+;;; .ent.el ends here

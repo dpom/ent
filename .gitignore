@@ -2,6 +2,7 @@
 *.elc
 *~
 *.stamp
+tmp
 
 # Added automatically by ‘eldev init’.
 /.eldev
