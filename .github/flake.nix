@@ -28,11 +28,11 @@
     # stable branches are recommended for CI, regression spotting.  Testing with
     # multiple versions can be done via input overrides, such as:
     # nix build .#ci --override-input nixpkgs github:nixpkgs/nixpkgs/unstable
-    nixpkgs.url = "github:nixos/nixpkgs?ref=release-22.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     flake-utils.url = "github:numtide/flake-utils";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     # slave Emacs overlay to our nixpkgs.  This doesn't do a lot except reduce
-    # the closure size and allow us to control both nixpkgs versions with one
+    # the closure size and allow us to control both nixpkgs versions with oneq
     # declaration.
     emacs-overlay.inputs.nixpkgs.follows = "nixpkgs";
     emacs-overlay.inputs.flake-utils.follows = "flake-utils";
@@ -53,8 +53,6 @@
         emacsPackages = [
           "emacs-unstable"
           "emacs-git"
-          "emacs28"
-          "emacs29"
           "emacs"
         ];
         # To explore available attributes, you can instantiate nixpkgs with the emacs overlay in a nix repl:
