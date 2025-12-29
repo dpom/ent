@@ -65,7 +65,7 @@
 (defvar ent--log-proc nil
   "Log dummy process.")
 
-(defvar ent--tasks (make-hash-table :test #'equal)
+(defvar ent-tasks (make-hash-table :test #'equal)
   "Internal hash table of registered tasks.")
 
 
@@ -103,16 +103,24 @@
   (format-time-string "%FT%T.%N"))
 
 
-(defun ent-log (format-string &rest args)
+
+(defun ent-log* (format-string &rest args)
   "Append a log message to `ent--log-buffer'.
 
 FORMAT-STRING and ARGS follow the same convention as `format'.
 The message is written as a single line terminated by a newline."
   (with-current-buffer ent--log-buffer
     (comint-goto-process-mark)
-    (insert (format "\n[%s] " (ent-time-iso-format)) (apply #'format (cons format-string args)) "\n")
+    (insert (apply #'format (cons format-string args)) "\n")
     (comint-set-process-mark)))
 
+
+(defun ent-log (format-string &rest args)
+  "Append a timed prefixed log message to `ent--log-buffer'.
+
+FORMAT-STRING and ARGS follow the same convention as `format'.
+The message is written as a single line terminated by a newline."
+(apply #'ent-log* (cons (concat "\n[%s] " format-string) (push (ent-time-iso-format) args))))
 
 (defun ent--clear-log ()
   "Delete all contents of the log buffer."
@@ -138,7 +146,7 @@ The message is written as a single line terminated by a newline."
 (defun ent--ensure-task-exists (name)
   "Ensure that a task named NAME is registered.
 If not, signal an error."
-  (unless (gethash name ent--tasks)
+  (unless (gethash name ent-tasks)
     (error "Task `%s' is not defined" name)))
 
 
@@ -148,14 +156,14 @@ If not, signal an error."
                                 :doc   doc
                                 :deps  deps
                                 :action action)
-           ent--tasks))
+           ent-tasks))
 
 
 ;;; Process helpers ---------------------------------------------------------
 
 (defun ent-task-names ()
   "Return a list of all task names currently defined."
-  (cl-loop for key being the hash-keys of ent--tasks
+  (cl-loop for key being the hash-keys of ent-tasks
            collect key))
 
 
@@ -165,7 +173,7 @@ If not, signal an error."
 ALL-DEPS is a list of task names, initial is empty."
   (if (member task-name all-deps)
       all-deps
-    (let* ((task (gethash task-name ent--tasks))
+    (let* ((task (gethash task-name ent-tasks))
            (deps (ent-task-deps task))
            (new-deps (if deps
                            (cl-reduce 'ent--get-all-deps (split-string deps "[[:space:]]+" t) :initial-value all-deps)
@@ -200,7 +208,7 @@ Write output/error to `ent-log-buffer'."
   (if (null task-list)
       (ent-log "Done")
     (let* ((task-name (pop task-list))
-           (task (gethash task-name ent--tasks))
+           (task (gethash task-name ent-tasks))
            (action (ent-task-action task)))
       (ent-log "Start %s task" task-name)
       (cond
@@ -220,7 +228,7 @@ Write output/error to `ent-log-buffer'."
 
 (defun ent--init-run ()
   "Initialize the global variables for a new run."
-  (setq ent--tasks (make-hash-table :test 'equal))
+  (setq ent-tasks (make-hash-table :test 'equal))
   (ent--create-log-buffer)
   (switch-to-buffer ent--log-buffer))
 

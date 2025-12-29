@@ -6,9 +6,11 @@
 
 ;;; Code:
 
+
 (setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
 (setq ent-project-name "ent-test")
 
+(load-file (expand-file-name "../lisp/ent-default-tasks.el" ent-project-home))
 
 (task "test1"
       :doc "Test shell"
