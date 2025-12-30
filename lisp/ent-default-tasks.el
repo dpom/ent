@@ -6,7 +6,7 @@
 ;; Version: 2.2
 ;; Homepage: https://gitlab.com/dpom/ent
 ;; Keywords: elisp tools project
-;; Package-Requires: ((emacs "28.1") cl-lib f (seq))
+;; Package-Requires: ((emacs "28.1"))
 
 ;; This file is not part of GNU Emacs
 
@@ -96,10 +96,10 @@ directory never runs on a child that has already been deleted."
 (defun ent--help-action ()
   "List active tasks."
   (let ((task-names (sort (ent-task-names))))
-   (ent-log* "Project name: %s" ent-project-name)
-   (ent-log* "Project dir: %s" ent-project-home)
-   (ent-log* "Project tasks: %s" (ent-task-names))
-   (dolist (name task-names)
+    (ent-log* "Project name: %s" ent-project-name)
+    (ent-log* "Project dir: %s" ent-project-home)
+    (ent-log* "Project tasks: %s" (ent-task-names))
+    (dolist (name task-names)
       (let ((task (gethash name ent-tasks)))
         (ent-log* "%-10s\t- %s" name (ent-task-doc task))))))
 
@@ -108,33 +108,33 @@ directory never runs on a child that has already been deleted."
   "Remove all files matching PATTERN from DIR recursively."
   (let ((removed 0))
     (ent-log* "Clean: %s from %s" pattern dir)
-     (ent-walk dir pattern #'(lambda (x)
-                               (delete-file (expand-file-name x))
-                               (cl-incf removed)
-                               (ent-log* "clean: %s deleted" (expand-file-name x))))
-     (ent-log* "Clean: command terminated %d files removed" removed)
-     removed))
+    (ent-walk dir pattern #'(lambda (x)
+                              (delete-file (expand-file-name x))
+                              (cl-incf removed)
+                              (ent-log* "clean: %s deleted" (expand-file-name x))))
+    (ent-log* "Clean: command terminated %d files removed" removed)
+    removed))
 
 
 (defun ent--dirclean-action (dir pattern)
   "Remove all directories matching PATTERN from DIR recursively."
   (let ((removed 0)
         (regexp (or ent-dirclean-regexp ent-dirclean-default-regexp)))
-     (ent-log* "DirClean: %s from %s" regexp dir)
-     (ent-dir-walk dir pattern #'(lambda (x)
-                                   (dired-delete-file (expand-file-name x) 'always)
-                                   (cl-incf removed)
-                                   (ent-log* "%s deleted" (expand-file-name x))))
-     (ent-log*  "DirClean: %d directories removed" removed)
-     removed))
+    (ent-log* "DirClean: %s from %s" regexp dir)
+    (ent-dir-walk dir pattern #'(lambda (x)
+                                  (dired-delete-file (expand-file-name x) 'always)
+                                  (cl-incf removed)
+                                  (ent-log* "%s deleted" (expand-file-name x))))
+    (ent-log*  "DirClean: %d directories removed" removed)
+    removed))
 
 
 (defun ent--env-action ()
   "Display environmeqnt variables."
-   (ent-log* "\nEnvironment:")
-   (ent-log* "load-path:\n %s\n" load-path)
-   (ent-log* "initial-environment:\n %s\n" initial-environment)
-   (ent-log* "process-environment:\n %s\n" process-environment))
+  (ent-log* "\nEnvironment:")
+  (ent-log* "load-path:\n %s\n" load-path)
+  (ent-log* "initial-environment:\n %s\n" initial-environment)
+  (ent-log* "process-environment:\n %s\n" process-environment))
 
 
 
@@ -157,8 +157,8 @@ directory never runs on a child that has already been deleted."
       :doc (documentation 'ent--dirclean-action)
       :action (lambda ()
                 (ent--dirclean-action ent-project-home
-                                   (or ent-dirclean-regexp
-                                       ent-dirclean-default-regexp))))
+                                      (or ent-dirclean-regexp
+                                          ent-dirclean-default-regexp))))
 
 
 (task "env"

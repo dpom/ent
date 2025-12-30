@@ -25,70 +25,32 @@
   :END:
 
  #+begin_src elisp
-   ;; update this after you publish your new package!
-   ;; (use-package ent) ; vanilla, assuming you have MELPA configured
+;; update this after you publish your new package!
+;; (use-package ent) ; vanilla, assuming you have MELPA configured
 
-   ;; package-vc
-   (package-vc-install
-    '(ent :url "https://github.com/dpom/ent.git"
-          :lisp-dir "lisp"
-          :doc "doc/ent.texi"))
+;; package-vc
+(package-vc-install
+ '(ent :url "https://github.com/dpom/ent.git"
+       :lisp-dir "lisp"
+       :doc "doc/ent.texi"))
 
-   ;; using elpaca's with explicit recipe
-   (use-package ent
-     :elpaca (ent :host github :repo "dpom/ent"))
+;; using elpaca's with explicit recipe
+(use-package ent
+  :elpaca (ent :host github :repo "dpom/ent"))
 
-   ;; straight with explicit recipe
-   (use-package ent
-     :straight (ent :type git :host github :repo "dpom/ent"))
+;; straight with explicit recipe
+(use-package ent
+  :straight (ent :type git :host github :repo "dpom/ent"))
 
-   ;; or use manual load-path & require, you brave yak shaver
+;; for my emacs config (twix) a recipe file:
+(ent :fetcher github :repo "dpom/ent"
+     :files ("lisp/*.el"))
  #+end_src
 
  #+toc: headlines 2
 
 
 
-* Tasks
-:PROPERTIES:
-:CATEGORY: Ent
-:END:
-
-** Backlog
-
-** 1.0 Initial version
-
-*** DONE create project layout
-SCHEDULED: <2019-04-20 Sb>
-:LOGBOOK:
-CLOCK: [2019-04-20 Sb 17:56]--[2019-04-20 Sb 18:21] =>  0:25
-CLOCK: [2019-04-20 Sb 16:59]--[2019-04-20 Sb 17:24] =>  0:25
-CLOCK: [2019-04-20 Sb 08:36]--[2019-04-20 Sb 08:56] =>  0:20
-:END:
-
-*** DONE refactor project to work with straight
-SCHEDULED: <2019-10-20 Du>
-
-** 2.0 Dash version
-*** INPROGRESS build a manual test plan
-SCHEDULED: <2021-08-21 Sb>
-:LOGBOOK:
-CLOCK: [2021-08-21 Sb 09:11]--[2021-08-21 Sb 09:36] =>  0:25
-:END:
-*** fix flatten bug
-
-
-
-* Contributing
-
-  Because this repository is created from [[https://github.com/positron-solutions/elisp-repo-kit][elisp-repo-kit]], please file any issues
-  or make relevant pull requests there unless the changes are specific to this
-  repo.
-
-  See the [[./CONTRIBUTING.md][CONTRIBUTING]] guide for help making changes to this project.
-
-  For turn-key contribution to the software ecosystem that keeps you moving, see
-  the [[https://github.com/sponsors/positron-solutions][funding links]].
 
 # Local Variables:
 # after-save-hook: (lambda () (when (require 'erk nil t) (erk-export-readme)))

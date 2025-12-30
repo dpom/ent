@@ -30,50 +30,10 @@ Its goal is to discover a *project* (identified by a dedicated `ent‑project‑
     (use-package ent
       :straight (ent :type git :host github :repo "dpom/ent"))
     
-    ;; or use manual load-path & require, you brave yak shaver
+    ;; for my emacs config (twix) a recipe file:
+    (ent :fetcher github :repo "dpom/ent"
+         :files ("lisp/*.el"))
 
 
 # Table of Contents
-
--   [Tasks](#org4c1aeb5)
-    -   [Backlog](#org9548b47)
-    -   [1.0 Initial version](#org61a4b6d)
-    -   [2.0 Dash version](#orge8ef35c)
--   [Contributing](#org00ed356)
-
-
-# Tasks
-
-
-## Backlog
-
-
-## 1.0 Initial version
-
-
-### DONE create project layout
-
-
-### DONE refactor project to work with straight
-
-
-## 2.0 Dash version
-
-
-### INPROGRESS build a manual test plan
-
-
-### fix flatten bug
-
-
-# Contributing
-
-Because this repository is created from [elisp-repo-kit](https://github.com/positron-solutions/elisp-repo-kit), please file any issues
-or make relevant pull requests there unless the changes are specific to this
-repo.
-
-See the [CONTRIBUTING](./CONTRIBUTING.md) guide for help making changes to this project.
-
-For turn-key contribution to the software ecosystem that keeps you moving, see
-the [funding links](https://github.com/sponsors/positron-solutions).
 

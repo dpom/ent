@@ -9,7 +9,17 @@
 
 (task "lint"
       :doc "Lint the source code"
-      :action "nix develop .github# && \"emacs\" --quick --script .github/run-shim.el -- lint")
+      :action (concat
+               "cd .github"
+               " && direnv allow"
+               " && emacs --script ./run-shim.el -- lint"))
+
+(task "test"
+      :doc "Test the source code"
+      :action (concat
+               "cd .github"
+               " && direnv allow"
+               " && emacs --script ./run-shim.el -- test"))
 
 
 

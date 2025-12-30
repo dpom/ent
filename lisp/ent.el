@@ -6,7 +6,7 @@
 ;; Version: 2.2
 ;; Homepage: https://gitlab.com/dpom/ent
 ;; Keywords: elisp tools project
-;; Package-Requires: ((emacs "28.1") cl-lib f (seq))
+;; Package-Requires: ((emacs "28.1"))
 
 ;; This file is not part of GNU Emacs
 
@@ -82,12 +82,11 @@
 
 (defun ent--create-log-buffer ()
   "Create a comint-like buffer with no interactive input."
+  (kill-buffer ent--log-buffer)
   (let ((buffer (get-buffer-create ent--log-buffer)))
     (switch-to-buffer buffer)
-    (erase-buffer)
-    (unless (derived-mode-p 'shell-mode)
-      (shell-mode))
     (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+    (shell-mode)
     (setq comint-prompt-regexp "^OUT> ")
     (setq comint-use-prompt-regexp t)
     ;; Disable interactive input
@@ -120,7 +119,8 @@ The message is written as a single line terminated by a newline."
 
 FORMAT-STRING and ARGS follow the same convention as `format'.
 The message is written as a single line terminated by a newline."
-(apply #'ent-log* (cons (concat "\n[%s] " format-string) (push (ent-time-iso-format) args))))
+  (apply #'ent-log* (cons (concat "\n[%s] " format-string)
+                          (push (ent-time-iso-format) args))))
 
 (defun ent--clear-log ()
   "Delete all contents of the log buffer."
@@ -129,9 +129,8 @@ The message is written as a single line terminated by a newline."
 
 
 (defun ent--colorize-log ()
-  "Delete all contents of the log buffer."
+  "Colorize all contents of the log buffer."
   (with-current-buffer ent--log-buffer
-    ;; (kill-process ent--log-proc)
     (let ((inhibit-read-only t)
           (modified (buffer-modified-p)))
       (ansi-color-apply-on-region (point-min) (point-max) t)
@@ -176,9 +175,11 @@ ALL-DEPS is a list of task names, initial is empty."
     (let* ((task (gethash task-name ent-tasks))
            (deps (ent-task-deps task))
            (new-deps (if deps
-                           (cl-reduce 'ent--get-all-deps (split-string deps "[[:space:]]+" t) :initial-value all-deps)
+                         (cl-reduce 'ent--get-all-deps
+                                    (split-string deps "[[:space:]]+" t)
+                                    :initial-value all-deps)
                          all-deps)))
-       (push task-name new-deps))))
+      (push task-name new-deps))))
 
 
 (defun ent-run-shell-command (command task-list)
@@ -206,7 +207,10 @@ Write output/error to `ent-log-buffer'."
 (defun ent--start-next-task (task-list)
   "Start the first task from the TASK-LIST."
   (if (null task-list)
-      (ent-log "Done")
+      (progn
+        (ent-log "Done")
+        (ent--colorize-log)
+        (kill-process ent--log-proc))
     (let* ((task-name (pop task-list))
            (task (gethash task-name ent-tasks))
            (action (ent-task-action task)))
@@ -216,8 +220,8 @@ Write output/error to `ent-log-buffer'."
                              (funcall action)
                              (ent-log "End %s task" task-name)
                              (ent--start-next-task task-list)))
-        ((stringp action) (ent-run-shell-command action task-list))
-        ('t (ent--start-next-task task-list))))))
+       ((stringp action) (ent-run-shell-command action task-list))
+       ('t (ent--start-next-task task-list))))))
 
 
 (defun ent--find-project-file ()
@@ -249,9 +253,7 @@ a task from the list of registered tasks, resolves that task’s
     (load initfile)
     (let* ((task-name (completing-read "Task: " (ent-task-names) nil t))
            (task-list (reverse (ent--get-all-deps '() task-name))))
-      (ent--start-next-task task-list)
-      ;; (ent--colorize-log)
-      )))
+      (ent--start-next-task task-list))))
 
 
 (provide 'ent)

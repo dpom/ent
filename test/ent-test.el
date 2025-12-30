@@ -12,10 +12,10 @@
 
 (ert-deftest ent-get-all-deps-test ()
     (load-file (expand-file-name "resources/test-deps.el" test-home))
-    (should (equal (ent-get-all-deps '() "t1") '("t1")))
-    (should (equal (ent-get-all-deps '() "t2") '("t2" "t1")))
-    (should (equal (ent-get-all-deps '() "t3") '("t3" "t2" "t1")))
-    (should (equal (ent-get-all-deps '() "t4") '("t4" "t3" "t2" "t1")))
+    (should (equal (ent--get-all-deps '() "t1") '("t1")))
+    (should (equal (ent--get-all-deps '() "t2") '("t2" "t1")))
+    (should (equal (ent--get-all-deps '() "t3") '("t3" "t2" "t1")))
+    (should (equal (ent--get-all-deps '() "t4") '("t4" "t3" "t2" "t1")))
 
 
     )
