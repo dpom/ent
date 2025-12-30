@@ -7,3 +7,4 @@ tmp
 # Added automatically by ‘eldev init’.
 /.eldev
 /Eldev-local
+/.github/.direnv/

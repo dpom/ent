@@ -82,7 +82,8 @@
 
 (defun ent--create-log-buffer ()
   "Create a comint-like buffer with no interactive input."
-  (kill-buffer ent--log-buffer)
+  (when (buffer-live-p ent--log-buffer)
+    (kill-buffer ent--log-buffer))
   (let ((buffer (get-buffer-create ent--log-buffer)))
     (switch-to-buffer buffer)
     (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)

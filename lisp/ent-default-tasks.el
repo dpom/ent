@@ -33,6 +33,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'dired)
 (require 'ent)
 
 
@@ -140,31 +141,27 @@ directory never runs on a child that has already been deleted."
 
 ;;; Tasks -------------------------------------------------------------------
 
-(task "help"
-      :doc (documentation 'ent--help-action)
-      :action 'ent--help-action)
-
-
-(task "clean"
-      :doc (documentation 'ent--clean-action)
-      :action (lambda ()
-                (ent--clean-action ent-project-home
-                                   (or ent-clean-regexp
-                                       ent-clean-default-regexp))))
-
-
-(task "dirclean"
-      :doc (documentation 'ent--dirclean-action)
-      :action (lambda ()
-                (ent--dirclean-action ent-project-home
-                                      (or ent-dirclean-regexp
-                                          ent-dirclean-default-regexp))))
-
-
-(task "env"
-      :doc (documentation 'ent--env-action)
-      :action 'ent--env-action)
-
+;;;###autoload
+(defun ent-load-default-tasks ()
+  "Load the default tasks."
+  (task "help"
+        :doc (documentation 'ent--help-action)
+        :action 'ent--help-action)
+  (task "clean"
+        :doc (documentation 'ent--clean-action)
+        :action (lambda ()
+                  (ent--clean-action ent-project-home
+                                     (or ent-clean-regexp
+                                         ent-clean-default-regexp))))
+  (task "dirclean"
+        :doc (documentation 'ent--dirclean-action)
+        :action (lambda ()
+                  (ent--dirclean-action ent-project-home
+                                        (or ent-dirclean-regexp
+                                            ent-dirclean-default-regexp))))
+  (task "env"
+        :doc (documentation 'ent--env-action)
+        :action 'ent--env-action))
 
 (provide 'ent-default-tasks)
 ;;; ent-default-tasks.el ends here
