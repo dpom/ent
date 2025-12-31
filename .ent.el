@@ -4,8 +4,10 @@
 (setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
 (setq ent-project-name "ent")
 
-;; tasks
+(ent-load-default-tasks)
 
+
+;; tasks
 
 (task "lint"
       :doc "Lint the source code"
@@ -20,10 +22,6 @@
                "cd .github"
                " && direnv allow"
                " && emacs --script ./run-shim.el -- test"))
-
-
-
-
 
 (provide '.ent)
 ;;; .ent.el ends here
