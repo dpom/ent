@@ -687,11 +687,11 @@ ent
 * Menu:
 
 * Welcome::
-* Use with Elisp Repo Kit::
-* About this Manual::
+* Overview::
+* Usage::
 
 
-File: ent.info,  Node: Welcome,  Next: Use with Elisp Repo Kit,  Prev: Top,  Up: Top
+File: ent.info,  Node: Welcome,  Next: Overview,  Prev: Top,  Up: Top
 
 1 Welcome
 *********
@@ -700,31 +700,87 @@ This is a simple org document used to generate an info manual and
 content for the README.
 
 
-File: ent.info,  Node: Use with Elisp Repo Kit,  Next: About this Manual,  Prev: Welcome,  Up: Top
+File: ent.info,  Node: Overview,  Next: Usage,  Prev: Welcome,  Up: Top
 
-2 Use with Elisp Repo Kit
-*************************
+2 Overview
+**********
 
-The repository hosting this package was created with elisp-repo-kit
-(https://github.com/positron-solutions/elisp-repo-kit).  You can clone
-and rename it using ‘erk-new’ to quickly get a package set up.
+‘ent.el’ is a *tiny build‑automation* framework written in pure
+Emacs‑Lisp.
+
+   Its goal is to discover a _project_ (identified by a dedicated
+‘ent‑project‑config‑filename’ file), load the project‑specific build
+file, create a set of *tasks* (default and user‑defined) and run a
+selected task while reporting the output in a _compilation_ buffer.
 
 
-File: ent.info,  Node: About this Manual,  Prev: Use with Elisp Repo Kit,  Up: Top
+File: ent.info,  Node: Usage,  Prev: Overview,  Up: Top
 
-3 About this Manual
-*******************
+3 Usage
+*******
 
-To see more examples of writing an org document that exports to texinfo
-or markdown, see the longer examples in Elisp Repo Kit, which is
-available in its info manual as well.
+First of all you need to create a build file ‘.ent.el’ in the project
+root directory.
+
+   The minimal form of this file is:
+     ;;; .ent.el --- local ent config file -*- lexical-binding: t; -*-
+
+     ;;; Commentary:
+
+     ;;; Code:
+
+     ;; project settings
+     (setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
+     (setq ent-project-name "project name")
+
+     (ent-load-default-tasks)
+
+     (provide '.ent)
+     ;;; .ent.el ends here
+
+     ;; Local Variables:
+     ;; no-byte-compile: t
+     ;; no-update-autoloads: t
+     ;; End:
+
+   To run a task run the ‘ent-run’ command and select the task from the
+list of active tasks.  In minimal form only the default tasks are active
+(help, clean, dirclean, env) but the big advantage of ‘ent’ is the ease
+with which you can create new tasks.
+
+   A new task is created with the function:
+     (task "nume-task"
+           :doc "Explain the functionality of the task."
+           :deps "A list of task names on which the task depends separated by space."
+           :action "Action to execute")
+   All the three key parameters (‘doc’, ‘deps’ and ‘action’) are
+optional but of course a task without any of them makes no sense.
+
+   The ‘:action’ parameter can be a string or an elisp function.  If it
+is a string then it is a shell command that executes in the root
+directory of the project.  Example:
+     (task "shell-example"
+           :doc "List the files in the project root directory after it has been cleaned."
+           :deps "clean dirclean"
+           :action "ls -la")
+   The elisp function is a function without any parameters and can be
+interactive or not.  Example:
+     (task "elisp-example"
+           :doc "Display a greeting message."
+           :action (lambda ()
+                    (let  ((greeting (completing-read "Greeting: " '("Hello" "Buna" "Bonjour") nil t)))
+                      (message "%s Dan" greeting)
+                      )))
+
+   *Note* To have the functionality of a compilation output buffer set
+the log file to ‘compilation-mode’ after task execution.
 
 
 Tag Table:
 Node: Top35032
-Node: Welcome35171
-Node: Use with Elisp Repo Kit35371
-Node: About this Manual35733
+Node: Welcome35144
+Node: Overview35329
+Node: Usage35797
 
 End Tag Table
 

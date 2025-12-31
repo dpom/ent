@@ -749,8 +749,7 @@ Public License instead of this License.  But first, please read
 @finalout
 @titlepage
 @title ent
-@subtitle for version 0.1.0
-@author Dan Pomohaci
+@subtitle for version 2.2
 @page
 @vskip 0pt plus 1filll
 @insertcopying
@@ -765,8 +764,8 @@ Public License instead of this License.  But first, please read
 
 @menu
 * Welcome::
-* Use with Elisp Repo Kit::
-* About this Manual::
+* Overview::
+* Usage::
 @end menu
 
 @node Welcome
@@ -775,17 +774,75 @@ Public License instead of this License.  But first, please read
 This is a simple org document used to generate an info manual and content for
 the README@.
 
-@node Use with Elisp Repo Kit
-@chapter Use with Elisp Repo Kit
+@node Overview
+@chapter Overview
 
-The repository hosting this package was created with @uref{https://github.com/positron-solutions/elisp-repo-kit, elisp-repo-kit}.  You can
-clone and rename it using @code{erk-new} to quickly get a package set up.
+@samp{ent.el} is a @strong{tiny build‑automation} framework written in pure Emacs‑Lisp.
 
-@node About this Manual
-@chapter About this Manual
+Its goal is to discover a @emph{project} (identified by a dedicated
+@samp{ent‑project‑config‑filename} file), load the project‑specific build
+file, create a set of @strong{tasks} (default and user‑defined) and run a
+selected task while reporting the output in a @emph{compilation} buffer.
 
-To see more examples of writing an org document that exports to texinfo or
-markdown, see the longer examples in Elisp Repo Kit, which is available in its
-info manual as well.
+@node Usage
+@chapter Usage
+
+First of all you need to create a build file @code{.ent.el} in the project root directory.
+
+The minimal form of this file is:
+@lisp
+;;; .ent.el --- local ent config file -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+;;; Code:
+
+;; project settings
+(setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
+(setq ent-project-name "project name")
+
+(ent-load-default-tasks)
+
+(provide '.ent)
+;;; .ent.el ends here
+
+;; Local Variables:
+;; no-byte-compile: t
+;; no-update-autoloads: t
+;; End:
+@end lisp
+
+To run a task run the @code{ent-run} command and select the task from the
+list of active tasks. In minimal form only the default tasks are
+active (help, clean, dirclean, env) but the big advantage of @samp{ent} is
+the ease with which you can create new tasks.
+
+A new task is created with the function:
+@lisp
+(task "nume-task"
+      :doc "Explain the functionality of the task."
+      :deps "A list of task names on which the task depends separated by space."
+      :action "Action to execute")
+@end lisp
+All the three key parameters (@samp{doc}, @samp{deps} and @samp{action}) are optional but of course a task without any of them makes no sense.
+
+The @code{:action} parameter can be a string or an elisp function. If it is a string then it is a shell command that executes in the root directory of the project. Example:
+@lisp
+(task "shell-example"
+      :doc "List the files in the project root directory after it has been cleaned."
+      :deps "clean dirclean"
+      :action "ls -la")
+@end lisp
+The elisp function is a function without any parameters and can be interactive or not. Example:
+@lisp
+(task "elisp-example"
+      :doc "Display a greeting message."
+      :action (lambda ()
+               (let  ((greeting (completing-read "Greeting: " '("Hello" "Buna" "Bonjour") nil t)))
+                 (message "%s Dan" greeting)
+                 )))
+@end lisp
+
+@strong{Note} To have the functionality of a compilation output buffer set the log file to @code{compilation-mode} after task execution.
 
 @bye

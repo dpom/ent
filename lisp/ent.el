@@ -86,6 +86,7 @@
     (kill-buffer ent--log-buffer))
   (let ((buffer (get-buffer-create ent--log-buffer)))
     (switch-to-buffer buffer)
+    (erase-buffer)
     (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
     (shell-mode)
     (setq comint-prompt-regexp "^OUT> ")

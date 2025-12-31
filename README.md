@@ -7,8 +7,12 @@
 
 # Ent
 
-`ent.el` is a **tiny build‑automation** framework written in pure Emacs‑Lisp.  
-Its goal is to discover a *project* (identified by a dedicated `ent‑project‑config‑filename` file), load the project‑specific build file, create a set of **tasks** (default and user‑defined) and run a selected task while reporting the output in a *compilation* buffer.
+`ent.el` is a **tiny build‑automation** framework written in pure Emacs‑Lisp.
+
+Its goal is to discover a *project* (identified by a dedicated
+`ent‑project‑config‑filename` file), load the project‑specific build
+file, create a set of **tasks** (default and user‑defined) and run a
+selected task while reporting the output in a *compilation* buffer.
 
 
 # Install ent
@@ -35,5 +39,61 @@ Its goal is to discover a *project* (identified by a dedicated `ent‑project‑
          :files ("lisp/*.el"))
 
 
-# Table of Contents
+# Usage
+
+First of all you need to create a build file `.ent.el` in the project root directory.
+
+The minimal form of this file is:
+
+    ;;; .ent.el --- local ent config file -*- lexical-binding: t; -*-
+    
+    ;;; Commentary:
+    
+    ;;; Code:
+    
+    ;; project settings
+    (setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
+    (setq ent-project-name "project name")
+    
+    (ent-load-default-tasks)
+    
+    (provide '.ent)
+    ;;; .ent.el ends here
+    
+    ;; Local Variables:
+    ;; no-byte-compile: t
+    ;; no-update-autoloads: t
+    ;; End:
+
+To run a task run the `ent-run` command and select the task from the
+list of active tasks. In minimal form only the default tasks are
+active (help, clean, dirclean, env) but the big advantage of `ent` is
+the ease with which you can create new tasks.
+
+A new task is created with the function:
+
+    (task "nume-task"
+          :doc "Explain the functionality of the task."
+          :deps "A list of task names on which the task depends separated by space."
+          :action "Action to execute")
+
+All the three key parameters (`doc`, `deps` and `action`) are optional but of course a task without any of them makes no sense.
+
+The `:action` parameter can be a string or an elisp function. If it is a string then it is a shell command that executes in the root directory of the project. Example:
+
+    (task "shell-example"
+          :doc "List the files in the project root directory after it has been cleaned."
+          :deps "clean dirclean"
+          :action "ls -la")
+
+The elisp function is a function without any parameters and can be interactive or not. Example:
+
+    (task "elisp-example"
+          :doc "Display a greeting message."
+          :action (lambda ()
+                   (let  ((greeting (completing-read "Greeting: " '("Hello" "Buna" "Bonjour") nil t)))
+                     (message "%s Dan" greeting)
+                     )))
+
+**Note** To have the functionality of a compilation output buffer set the log file to `compilation-mode` after task execution.
 

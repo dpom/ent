@@ -47,10 +47,9 @@
      :files ("lisp/*.el"))
  #+end_src
 
- #+toc: headlines 2
+* Usage
 
-
-
+#+include: "manual.org::*Usage" :only-contents t
 
 # Local Variables:
 # after-save-hook: (lambda () (when (require 'erk nil t) (erk-export-readme)))

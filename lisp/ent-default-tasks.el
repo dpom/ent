@@ -99,17 +99,19 @@ directory never runs on a child that has already been deleted."
   (let ((task-names (sort (ent-task-names))))
     (ent-log* "Project name: %s" ent-project-name)
     (ent-log* "Project dir: %s" ent-project-home)
-    (ent-log* "Project tasks: %s" (ent-task-names))
+    (ent-log* "Project tasks:")
     (dolist (name task-names)
       (let ((task (gethash name ent-tasks)))
-        (ent-log* "%-10s\t- %s" name (ent-task-doc task))))))
+        (ent-log* "  - %-10s\t- %s" name (ent-task-doc task))))))
 
 
-(defun ent--clean-action (dir pattern)
-  "Remove all files matching PATTERN from DIR recursively."
-  (let ((removed 0))
-    (ent-log* "Clean: %s from %s" pattern dir)
-    (ent-walk dir pattern #'(lambda (x)
+(defun ent--clean-action ()
+  "Remove all files matching a regexp from project root directory recursively. The regexp is the `ent-clean-regexp' variable (if not set is `ent-clean-default-regexp')."
+  (let ((regexp (or ent-dirclean-regexp ent-dirclean-default-regexp))
+        (dir ent-project-home)
+        (removed 0))
+    (ent-log* "Clean: %s from %s" regexp dir)
+    (ent-walk dir regexp #'(lambda (x)
                               (delete-file (expand-file-name x))
                               (cl-incf removed)
                               (ent-log* "clean: %s deleted" (expand-file-name x))))
@@ -117,12 +119,13 @@ directory never runs on a child that has already been deleted."
     removed))
 
 
-(defun ent--dirclean-action (dir pattern)
-  "Remove all directories matching PATTERN from DIR recursively."
+(defun ent--dirclean-action ()
+  "Remove all directories matching regexp from project root dir recursively. The regexp is the `ent-dirclean-regexp' variable (if not set is `ent-dirclean-default-regexp')."
   (let ((removed 0)
+        (dir ent-project-home)
         (regexp (or ent-dirclean-regexp ent-dirclean-default-regexp)))
     (ent-log* "DirClean: %s from %s" regexp dir)
-    (ent-dir-walk dir pattern #'(lambda (x)
+    (ent-dir-walk dir regexp #'(lambda (x)
                                   (dired-delete-file (expand-file-name x) 'always)
                                   (cl-incf removed)
                                   (ent-log* "%s deleted" (expand-file-name x))))
@@ -149,16 +152,10 @@ directory never runs on a child that has already been deleted."
         :action 'ent--help-action)
   (task "clean"
         :doc (documentation 'ent--clean-action)
-        :action (lambda ()
-                  (ent--clean-action ent-project-home
-                                     (or ent-clean-regexp
-                                         ent-clean-default-regexp))))
+        :action 'ent--clean-action)
   (task "dirclean"
         :doc (documentation 'ent--dirclean-action)
-        :action (lambda ()
-                  (ent--dirclean-action ent-project-home
-                                        (or ent-dirclean-regexp
-                                            ent-dirclean-default-regexp))))
+        :action 'ent--dirclean-action)
   (task "env"
         :doc (documentation 'ent--env-action)
         :action 'ent--env-action))
