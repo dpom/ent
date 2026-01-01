@@ -16,6 +16,14 @@
                " && direnv allow"
                " && emacs --script ./run-shim.el -- lint"))
 
+(task "lint-tests"
+      :doc "Lint the tests code"
+      :action (concat
+               "cd .github"
+               " && direnv allow"
+               " && emacs --script ./run-shim.el -- lint-tests"))
+
+
 (task "test"
       :doc "Test the source code"
       :action (concat
