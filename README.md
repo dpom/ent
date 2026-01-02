@@ -65,14 +65,14 @@ The minimal form of this file is:
     ;; no-update-autoloads: t
     ;; End:
 
-To run a task run the `ent-run` command and select the task from the
+To run a task execute the `ent-run` command and select the task from the
 list of active tasks. In minimal form only the default tasks are
 active (help, clean, dirclean, env) but the big advantage of `ent` is
 the ease with which you can create new tasks.
 
 A new task is created with the function:
 
-    (task "nume-task"
+    (task "task-name"
           :doc "Explain the functionality of the task."
           :deps "A list of task names on which the task depends separated by space."
           :action "Action to execute")
