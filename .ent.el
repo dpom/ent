@@ -1,8 +1,12 @@
 ;;; .ent.el --- local ent config file -*- lexical-binding: t; -*-
 
+;;; Commentary:
+;;; Code:
+
 ;; project settings
 (setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
 (setq ent-project-name "ent")
+(setq ent-clean-regexp ".*~$\\|.*sync-conflict.*$")
 
 (ent-load-default-tasks)
 

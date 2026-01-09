@@ -106,8 +106,11 @@ directory never runs on a child that has already been deleted."
 
 
 (defun ent--clean-action ()
-  "Remove all files matching a regexp from project root directory recursively. The regexp is the `ent-clean-regexp' variable (if not set is `ent-clean-default-regexp')."
-  (let ((regexp (or ent-dirclean-regexp ent-dirclean-default-regexp))
+  "Remove all files matching a regexp from project root directory recursively.
+
+The regexp is the `ent-clean-regexp' variable (if not set is
+`ent-clean-default-regexp')."
+  (let ((regexp (or ent-clean-regexp ent-clean-default-regexp))
         (dir ent-project-home)
         (removed 0))
     (ent-log* "Clean: %s from %s" regexp dir)
@@ -120,7 +123,10 @@ directory never runs on a child that has already been deleted."
 
 
 (defun ent--dirclean-action ()
-  "Remove all directories matching regexp from project root dir recursively. The regexp is the `ent-dirclean-regexp' variable (if not set is `ent-dirclean-default-regexp')."
+  "Remove all directories matching regexp from project root dir recursively.
+
+The regexp is the `ent-dirclean-regexp' variable (if not set is
+`ent-dirclean-default-regexp')."
   (let ((removed 0)
         (dir ent-project-home)
         (regexp (or ent-dirclean-regexp ent-dirclean-default-regexp)))
