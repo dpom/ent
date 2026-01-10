@@ -17,17 +17,18 @@
   :UNNUMBERED: notoc
   :END:
 
-#+include: "manual.org::*Overview" :only-contents t
+  #+include: "manual.org::*Overview" :only-contents t
 
-* Install ent
+** Key Features
+
+  #+include: "manual.org::*Key Features" :only-contents t
+
+** Install ent
   :PROPERTIES:
   :UNNUMBERED: notoc
   :END:
 
  #+begin_src elisp
-;; update this after you publish your new package!
-;; (use-package ent) ; vanilla, assuming you have MELPA configured
-
 ;; package-vc
 (package-vc-install
  '(ent :url "https://github.com/dpom/ent.git"
@@ -47,7 +48,7 @@
      :files ("lisp/*.el"))
  #+end_src
 
-* Usage
+** Usage
 
 #+include: "manual.org::*Usage" :only-contents t
 

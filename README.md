@@ -7,7 +7,7 @@
 
 # Ent
 
-`ent.el` is a **tiny build‑automation** framework written in pure Emacs‑Lisp.
+`ent` is designed as an alternative to tools like make or ant, but tailored specifically for the Emacs ecosystem. It allows developers to define and run build tasks using Elisp syntax directly within the editor.
 
 Its goal is to discover a *project* (identified by a dedicated
 `ent‑project‑config‑filename` file), load the project‑specific build
@@ -15,11 +15,16 @@ file, create a set of **tasks** (default and user‑defined) and run a
 selected task while reporting the output in a *compilation* buffer.
 
 
-# Install ent
+## Key Features
 
-    ;; update this after you publish your new package!
-    ;; (use-package ent) ; vanilla, assuming you have MELPA configured
-    
+-   **Pure Elisp:** Unlike make, which requires learning a specific DSL and relies on external shell commands, ent uses Emacs Lisp for task definitions, making it highly portable and integrated with Emacs internals.
+-   **Project-Root Awareness:** It typically looks for a .ent.el file in the project root to define tasks.
+-   **Task Dependencies:** It supports defining tasks that depend on other tasks, similar to traditional build systems.
+-   **Integration:** Since it is native Elisp, it can easily interact with other Emacs packages, buffers, and the file system without spawning heavy external processes.
+
+
+## Install ent
+
     ;; package-vc
     (package-vc-install
      '(ent :url "https://github.com/dpom/ent.git"
@@ -39,7 +44,7 @@ selected task while reporting the output in a *compilation* buffer.
          :files ("lisp/*.el"))
 
 
-# Usage
+## Usage
 
 First of all you need to create a build file `.ent.el` in the project root directory.
 
