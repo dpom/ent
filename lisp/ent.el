@@ -223,6 +223,8 @@ Write output/error to `ent-log-buffer'."
                              (ent-log "End %s task" task-name)
                              (ent--start-next-task task-list)))
        ((stringp action) (ent-run-shell-command action task-list))
+       ((and (listp action)
+           (eq (car action) 'concat)) (ent-run-shell-command (eval action) task-list))
        ('t (ent--start-next-task task-list))))))
 
 

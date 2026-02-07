@@ -24,16 +24,21 @@
                  )))
 
 (task "test3"
+      :doc "Test deps and long execution shell action"
       :deps "test1 test2"
       :action "nix-collect-garbage")
 
 (task "test4"
-      :doc "Test shell"
+      :doc "Test shell with colors"
       :action "ls -laC")
 
 (task "test5"
       :doc "Test deps"
       :deps "test4 test3 test2")
+
+(task "test6"
+      :doc "Test concat in action"
+      :action (concat "ls -la " ent-project-home))
 
 (provide '.ent)
 ;;; .ent.el ends here
